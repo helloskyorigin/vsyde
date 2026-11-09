@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import Image from "next/image";
 import {
   ArrowRight, ArrowUpRight, BarChart3, Check, CheckCircle2, ChevronDown,
   CircleHelp, Crown, FileCheck2, FileText, Gift, Globe2, Lightbulb,
@@ -226,7 +227,7 @@ export default function LandingPage() {
             </form>
             <div className="hero-promises"><span><Zap size={14} fill="currentColor"/> No Signup</span><span><Gift size={14}/> Free Preview</span><span><Crown size={15}/> $29 Full Report</span></div>
           </div>
-          <HeroArtwork/>
+          <div className="hero-reference-art" aria-hidden="true"><Image src="/hero-reference.webp" alt="" width={410} height={277} priority sizes="(max-width: 850px) 94vw, 48vw" /></div>
         </section>
 
         <section className="container" id="sample-battle" aria-labelledby="experience-heading">
