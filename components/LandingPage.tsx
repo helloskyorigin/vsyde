@@ -235,7 +235,7 @@ export default function LandingPage() {
               <div className="experience-title"><ChartNoAxesCombined size={26}/><h2 id="experience-heading">The Battle Experience</h2></div>
               <p>Get a detailed AI analysis with real screenshots and evidence-backed scores.</p>
               <ul className="check-list"><li><Check size={15}/> Side-by-side comparison</li><li><Check size={15}/> Clear winner & reasons</li><li><Check size={15}/> Actionable improvement tips</li></ul>
-              <a className="outline-button" href="#how-it-works">See Demo <ArrowRight size={16}/></a>
+              <a className="outline-button" href="#sample-battle" onClick={(event) => { event.preventDefault(); document.querySelector(".experience-preview")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>See Demo <ArrowRight size={16}/></a>
             </div>
             <div className="experience-preview">
               <span className="demo-flag">ILLUSTRATIVE DEMO · NOT A REAL SCAN</span>
