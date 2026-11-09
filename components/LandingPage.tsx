@@ -72,25 +72,15 @@ function HeroArtwork() {
 function DemoWebsite({ variant }: { variant: "a" | "b" }) {
   const isB = variant === "b";
   return (
-    <div className={`demo-site demo-site--${variant}`} aria-label={`Illustrative website ${variant.toUpperCase()} screenshot mockup`}>
-      <BrowserBar isDark={isB}/>
-      <div className="demo-site__body">
-        <div className="demo-site__nav">
-          <span className="demo-site__fake-logo"><i/>{isB ? "SITE B" : "SITE A"}</span>
-          <div className="demo-site__nav-links"><span>Product</span><span>Pricing</span><span>Resources</span></div>
-          <span className="demo-site__button">{isB ? "Try Free" : "Get Started"}</span>
-        </div>
-        <div className="demo-site__content">
-          <div className="demo-site__words">
-            <strong>{isB ? <>Smarter solutions<br/>for modern teams.</> : <>Build a better<br/>tomorrow.</>}</strong>
-            <span>{isB ? "One place to move work forward." : "Everything you need to grow."}</span>
-            <b>{isB ? "Try Free" : "Get Started"}</b>
-          </div>
-          <div className={`demo-site__building demo-site__building--${variant}`}>
-            <span/><span/><span/><span/><span/><span/>
-          </div>
-        </div>
-      </div>
+    <div className={`demo-site demo-site--${variant}`}>
+      <Image
+        src={isB ? "/sample-right.webp" : "/sample-left.webp"}
+        width={isB ? 282 : 277}
+        height={133}
+        className="demo-site__reference"
+        sizes="(max-width: 590px) calc(100vw - 65px), (max-width: 850px) 45vw, 27vw"
+        alt={isB ? "Illustrative competitor website from supplied design" : "Illustrative first website from supplied design"}
+      />
     </div>
   );
 }
@@ -261,7 +251,8 @@ export default function LandingPage() {
             <div className="pricing-checks"><p><CheckCircle2/> Detailed five-factor analysis</p><p><CheckCircle2/> Evidence-backed insights</p><p><CheckCircle2/> Five actionable improvements</p><p><CheckCircle2/> Copy-ready coding prompts</p></div>
             <div className="pricing-card"><strong>$29</strong><span>One-Time Payment · Per Battle</span><button className="button gradient-button pricing-button" onClick={startFromCTA}>Start with Free Preview <ArrowRight size={19}/></button><small>Full report unlock comes after a successful preview. Checkout not active in this UI demo.</small></div>
             <div className="report-visual" aria-label="Illustrative full report preview">
-              <div className="report-paper"><div className="report-head"><BrandMark compact/><span>REPORT / DEMO</span></div><div className="report-lines"><i/><i/><i/></div><div className="report-graph"><span/><span/><span/><span/><span/></div><div className="report-below"><div className="report-circle">92<small>/100</small></div><ul><li><Check size={12}/> Strengths</li><li><Check size={12}/> Weaknesses</li><li><Check size={12}/> Improvement Tips</li></ul></div></div>
+              <Image className="report-reference-art" src="/report-reference.webp" width={291} height={233} sizes="(max-width: 850px) 0px, 28vw" alt="Illustrative report card from the supplied VSYDE reference" />
+              <span className="report-demo-label">EXAMPLE PREVIEW</span>
             </div>
           </div>
         </section>

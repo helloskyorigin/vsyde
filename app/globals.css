@@ -470,3 +470,12 @@ h1, h2, h3, p { margin: 0; }
 @media (max-width: 1150px) and (min-width: 851px) { .hero-reference-art { height: 344px; } .hero-reference-art img { width: 114%; } }
 @media (max-width: 850px) { .hero-reference-art { width: 100%; height: auto; margin: 16px auto 0; max-width: 610px; } .hero-reference-art img { width: 100%; } }
 @media (max-width: 590px) { .hero-reference-art { max-width: 410px; margin-top: 16px; } .hero-reference-art img { width: 105%; } }
+
+/* Supplied comparison preview and report artwork */
+.demo-site { height: auto; aspect-ratio: 277 / 133; background: #f1f5ff; border: 1px solid #d6def4; }
+.demo-site__reference { display: block; width: 100%; height: 100%; object-fit: cover; }
+.report-visual { position: relative; min-height: 234px; padding: 6px 12px; }
+.report-reference-art { display: block; width: min(100%,305px); height: auto; object-fit: contain; filter: drop-shadow(0 12px 12px rgba(64,85,161,.09)); }
+.report-demo-label { position: absolute; bottom: 2px; right: 12px; color: #586b97; font-size: 9px; font-weight: 800; letter-spacing: .075em; }
+@media (max-width: 850px) { .demo-site { height: auto; } }
+@media (max-width: 590px) { .demo-site { height: auto; aspect-ratio: 277 / 133; border-radius: 12px; } }
