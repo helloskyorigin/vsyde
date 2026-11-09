@@ -1,271 +1,272 @@
 "use client";
 
-import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import Image from "next/image";
+import { type FormEvent, useId, useRef, useState } from "react";
 import {
-  ArrowRight, ArrowUpRight, BarChart3, Check, CheckCircle2, ChevronDown,
-  CircleHelp, Crown, FileCheck2, FileText, Gift, Globe2, Lightbulb,
-  LockKeyhole, Menu, MoveUpRight, ShieldCheck, Sparkles, X, Zap,
-  Share2, Target, Layers3, ChartNoAxesCombined,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  CircleCheck,
+  Globe2,
+  LockKeyhole,
+  Menu,
+  ShieldCheck,
+  X,
 } from "lucide-react";
 
-function BrandMark({ compact = false }: { compact?: boolean }) {
+const factors = [
+  { number: "01", name: "Offer clarity", weight: "25%", detail: "Can a new visitor understand what you do and who it’s for?" },
+  { number: "02", name: "Trust signals", weight: "20%", detail: "Are the claims, proof and business details easy to find?" },
+  { number: "03", name: "Pricing clarity", weight: "20%", detail: "Can buyers understand the price or the next pricing step?" },
+  { number: "04", name: "CTA path", weight: "20%", detail: "Is the next action obvious and connected to buyer intent?" },
+  { number: "05", name: "Buying friction", weight: "15%", detail: "What creates uncertainty or unnecessary steps?" },
+];
+
+const steps = [
+  { title: "Enter two URLs", detail: "Your public website and one competitor." },
+  { title: "Review the preview", detail: "A preliminary verdict with visible evidence." },
+  { title: "Unlock the full battle", detail: "Deeper buyer-path analysis for $29 once." },
+  { title: "Make the improvements", detail: "Prioritized fixes and copy-ready coding prompts." },
+];
+
+const faqs = [
+  {
+    question: "Is VSYDE free to try?",
+    answer: "The planned service includes a free, evidence-backed comparison preview. A deeper report costs $29 once per battle. This first UI release is a frontend demo; live scans are not enabled yet.",
+  },
+  {
+    question: "Do I need an account?",
+    answer: "No mandatory account is planned. Once the backend is available, paid reports will be accessible through a private, unguessable link.",
+  },
+  {
+    question: "What exactly does VSYDE measure?",
+    answer: "Visible website experience across five factors: offer clarity, trust signals, pricing clarity, CTA path and buying friction. The results are directional automated assessments, not measured sales or conversion rates.",
+  },
+  {
+    question: "What happens if a website can't be inspected?",
+    answer: "A blocked or incomplete scan should be marked Limited or Inconclusive. An inaccessible website never automatically loses the comparison.",
+  },
+  {
+    question: "Is the $29 report a subscription?",
+    answer: "No. The planned $29 Full Battle Report is a single, one-time payment for one completed battle. Checkout is not implemented in this frontend phase.",
+  },
+];
+
+function BrandMark({ small = false }: { small?: boolean }) {
+  const id = useId().replace(/:/g, "");
   return (
-    <span className={`brand-lockup ${compact ? "brand-lockup--compact" : ""}`} aria-label="VSYDE">
-      <svg className="brand-symbol" viewBox="0 0 80 70" role="img" aria-label="VSYDE split V symbol">
+    <span className={`brand ${small ? "brand--small" : ""}`}>
+      <svg className="brand__icon" viewBox="0 0 70 62" aria-hidden="true">
         <defs>
-          <linearGradient id="v-blue" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#03d7ef"/><stop offset=".55" stopColor="#2769fa"/><stop offset="1" stopColor="#7156f4"/></linearGradient>
-          <linearGradient id="v-violet" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#7757ff"/><stop offset="1" stopColor="#f529cc"/></linearGradient>
+          <linearGradient id={`${id}-left`} x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#13D1EB" />
+            <stop offset=".65" stopColor="#457CFA" />
+            <stop offset="1" stopColor="#6478FE" />
+          </linearGradient>
+          <linearGradient id={`${id}-right`} x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="#8975FD" />
+            <stop offset="1" stopColor="#C678FA" />
+          </linearGradient>
         </defs>
-        <path d="M2 8h26L45 41 33 65z" fill="url(#v-blue)"/>
-        <path d="M36 55 53 8h25L45 65H33z" fill="url(#v-violet)"/>
-        <path d="M29 8h22L35 42z" fill="#17d5ef" opacity=".94"/>
-        <path d="M30 8h6L47 29 42 40z" fill="#fff" opacity=".2"/>
+        <path d="M2 6h25L42 34 31 58z" fill={`url(#${id}-left)`} />
+        <path d="M36 47 50 6h18L41 58H30z" fill={`url(#${id}-right)`} />
+        <path d="M26 6h21L34 32z" fill="#58D2E7" />
       </svg>
-      <span className="brand-wordmark">VSYDE</span>
+      <span>VSYDE</span>
     </span>
   );
 }
 
-function Pill({ children, accent = false }: { children: React.ReactNode; accent?: boolean }) {
-  return <span className={`eyebrow-pill ${accent ? "eyebrow-pill--accent" : ""}`}>{children}</span>;
-}
-
-function BrowserBar({ isDark = false }: { isDark?: boolean }) {
-  return (
-    <div className={`browser-bar ${isDark ? "browser-bar--dark" : ""}`}>
-      <span/><span/><span/>
-      <i/><i/>
-    </div>
-  );
-}
-
-function HeroArtwork() {
-  return (
-    <div className="hero-art" aria-hidden="true">
-      <div className="hero-art__wash"/>
-      <div className="orbit orbit--back"/>
-      <div className="hero-browser hero-browser--left">
-        <BrowserBar/>
-        <div className="hero-browser__body">
-          <div className="hero-picture hero-picture--light"><div className="mountain-silhouette"/><div className="sun-dot"/></div>
-          <div className="hero-lines"><i/><i/><i/><i/><span/></div>
-        </div>
-        <div className="hero-browser__footer"><span/><span/><span/></div>
-      </div>
-      <div className="hero-browser hero-browser--right">
-        <BrowserBar isDark/>
-        <div className="hero-browser__body">
-          <div className="hero-lines hero-lines--dark"><i/><i/><i/><i/><span/></div>
-          <div className="hero-picture hero-picture--dark"><div className="mountain-silhouette"/><div className="sun-dot"/></div>
-        </div>
-        <div className="hero-browser__footer"><span/><span/><span/></div>
-      </div>
-      <div className="orbit orbit--front"/>
-      <div className="hero-vs">VS</div>
-      <span className="hero-art__spark hero-art__spark--one"/>
-      <span className="hero-art__spark hero-art__spark--two"/>
-    </div>
-  );
-}
-
-function DemoWebsite({ variant }: { variant: "a" | "b" }) {
-  const isB = variant === "b";
-  return (
-    <div className={`demo-site demo-site--${variant}`}>
-      <Image
-        src={isB ? "/sample-right.webp" : "/sample-left.webp"}
-        width={isB ? 282 : 277}
-        height={133}
-        className="demo-site__reference"
-        sizes="(max-width: 590px) calc(100vw - 65px), (max-width: 850px) 45vw, 27vw"
-        alt={isB ? "Illustrative competitor website from supplied design" : "Illustrative first website from supplied design"}
-      />
-    </div>
-  );
-}
-
-function ScoreTile({ score, variant }: { score: number; variant: "a" | "b" }) {
-  return (
-    <div className={`score-tile score-tile--${variant}`}>
-      <strong>{score}<small>/100</small></strong>
-      <span>Overall sample score</span>
-      <div className="score-track"><i style={{ width: `${score}%` }}/></div>
-    </div>
-  );
-}
-
-const benefits = [
-  { title: "AI-Powered Analysis", text: "Compare two sites using a consistent buyer-focused rubric.", Icon: Zap },
-  { title: "Detailed Reports", text: "Understand the differences with evidence and clear scores.", Icon: BarChart3 },
-  { title: "Actionable Fixes", text: "Know what to change first and why it matters.", Icon: Lightbulb },
-  { title: "Share Results", text: "Keep a private result link and share it when you choose.", Icon: Share2 },
-];
-
-const faqs = [
-  { q: "Is VSYDE free to try?", a: "The planned product includes a free, evidence-backed comparison preview. A deeper report will be available for a $29 one-time payment. The current page is a frontend demo; scans and checkout are not active yet." },
-  { q: "Do I need an account?", a: "No mandatory signup is planned. Purchased reports will be accessible through a secure private link when report delivery is implemented." },
-  { q: "How accurate are the results?", a: "VSYDE is designed to compare visible buyer experience across both public websites using one consistent rubric. Automated scores are directional, not proven conversion rates or guarantees of real sales." },
-  { q: "Can I share the report?", a: "The planned full report will have a private, shareable link. Anyone who has the link may be able to view it, so treat it as confidential." },
-  { q: "What if a website blocks scanning?", a: "The intended behavior is to show a limited or inconclusive comparison, explain what could not be checked, and provide a retry path rather than declare an unfair winner." },
-  { q: "Is $29 a subscription?", a: "No. The planned Full Battle Report costs $29 for one completed battle, paid once. There are no recurring charges." },
-];
-
-function normalizeURL(input: string): string | null {
-  const trimmed = input.trim();
-  if (!trimmed) return null;
+function normalizePublicUrl(raw: string): URL | null {
+  const input = raw.trim();
+  if (!input || /\s/.test(input)) return null;
   try {
-    const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
-    if (!(["http:", "https:"].includes(url.protocol)) || url.username || url.password) return null;
+    const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
     const hostname = url.hostname.toLowerCase();
-    if (!hostname.includes(".") || hostname === "localhost" || hostname.endsWith(".local") || hostname.endsWith(".internal") || /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) return null;
-    if (/\s/.test(trimmed)) return null;
-    return url.href;
-  } catch { return null; }
+    if (
+      !["https:", "http:"].includes(url.protocol) ||
+      url.username || url.password ||
+      hostname === "localhost" || hostname.endsWith(".local") || hostname.endsWith(".internal") ||
+      !/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(hostname) ||
+      /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname)
+    ) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function SiteSkeleton({ competitor = false }: { competitor?: boolean }) {
+  return (
+    <div className={`site-skeleton ${competitor ? "site-skeleton--competitor" : ""}`} aria-hidden="true">
+      <div className="site-skeleton__nav">
+        <span className="site-skeleton__logo" />
+        <span className="site-skeleton__navline" />
+        <span className="site-skeleton__navline site-skeleton__navline--short" />
+        <span className="site-skeleton__navcta" />
+      </div>
+      <div className="site-skeleton__body">
+        <div className="site-skeleton__copy">
+          <span className="site-skeleton__label" />
+          <span className="site-skeleton__headline" />
+          <span className="site-skeleton__headline site-skeleton__headline--short" />
+          <span className="site-skeleton__bodyline" />
+          <span className="site-skeleton__bodyline site-skeleton__bodyline--short" />
+          <span className="site-skeleton__button" />
+        </div>
+        <div className="site-skeleton__visual">
+          <div className="site-skeleton__visual-ring" />
+          <span /><span /><span />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MiniMetric({ label, first, second }: { label: string; first: number; second: number }) {
+  return (
+    <div className="metric-row">
+      <span className="metric-row__label">{label}</span>
+      <div className="metric-row__scores">
+        <div className="metric-row__score metric-row__score--first"><span>{first}/10</span><i style={{ width: `${first * 10}%` }} /></div>
+        <div className="metric-row__score metric-row__score--second"><span>{second}/10</span><i style={{ width: `${second * 10}%` }} /></div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewWindow() {
+  return (
+    <div className="preview-window" role="group" aria-label="Illustrative website comparison interface">
+      <div className="preview-window__toolbar">
+        <div className="window-dots" aria-hidden="true"><span /><span /><span /></div>
+        <span className="preview-window__path">VSYDE / Sample battle</span>
+        <span className="preview-window__sample">Illustrative demo</span>
+      </div>
+      <div className="preview-window__body">
+        <div className="preview-topline"><span className="micro-label">BATTLE OVERVIEW</span><span className="preview-topline__timestamp">Example values · Not a real scan</span></div>
+        <div className="preview-sites">
+          <article className="preview-site">
+            <div className="preview-site__title"><span className="site-dot site-dot--a"/><div><span>YOUR WEBSITE</span><strong>site-a.example</strong></div></div>
+            <SiteSkeleton />
+          </article>
+          <span className="preview-vs" aria-hidden="true">VS</span>
+          <article className="preview-site">
+            <div className="preview-site__title"><span className="site-dot site-dot--b"/><div><span>COMPETITOR</span><strong>site-b.example</strong></div></div>
+            <SiteSkeleton competitor />
+          </article>
+        </div>
+        <div className="preview-verdict">
+          <div className="preview-verdict__label"><span className="dot-pulse"/> PRELIMINARY VERDICT · EXAMPLE</div>
+          <div className="preview-verdict__main"><h3>Site A leads on clarity.</h3><p>A clearer first impression and more direct next step, based on this fictional example.</p></div>
+        </div>
+        <div className="metrics"><div className="metrics__head"><strong>Comparison signals</strong><span><i className="legend-a"/> Site A <i className="legend-b"/> Site B</span></div><MiniMetric label="Offer clarity" first={8} second={6}/><MiniMetric label="Trust signals" first={7} second={7}/><MiniMetric label="CTA path" first={9} second={6}/></div>
+        <div className="evidence-note"><span className="micro-label">EVIDENCE · EXAMPLE</span><p>Site B’s hero does not clearly state its core buyer outcome. Actual reports will link observations to captured public pages.</p></div>
+      </div>
+    </div>
+  );
 }
 
 export default function LandingPage() {
-  const [yourURL, setYourURL] = useState("");
-  const [competitorURL, setCompetitorURL] = useState("");
-  const [formError, setFormError] = useState("");
-  const [formNotice, setFormNotice] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
-  const firstInputRef = useRef<HTMLInputElement>(null);
-  const secondInputRef = useRef<HTMLInputElement>(null);
-  const errorId = useId();
+  const [yourSite, setYourSite] = useState("");
+  const [competitorSite, setCompetitorSite] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const yourInput = useRef<HTMLInputElement>(null);
+  const competitorInput = useRef<HTMLInputElement>(null);
+  const messageId = useId();
 
-  useEffect(() => {
-    if (menuOpen) {
-      const onEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
-      window.addEventListener("keydown", onEscape);
-      return () => window.removeEventListener("keydown", onEscape);
-    }
-  }, [menuOpen]);
+  function focusForm() {
+    setMobileNavOpen(false);
+    document.querySelector("#start-battle")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => yourInput.current?.focus({ preventScroll: true }), 220);
+  }
 
-  const startFromCTA = () => {
-    setMenuOpen(false);
-    document.getElementById("start-battle")?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
-    window.setTimeout(() => firstInputRef.current?.focus({ preventScroll: true }), 300);
-  };
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFormNotice("");
-    const own = normalizeURL(yourURL);
-    const other = normalizeURL(competitorURL);
-    if (!own) {
-      setFormError("Enter a valid public website domain for your site (for example, yoursite.com).");
-      firstInputRef.current?.focus();
+    setNotice("");
+    const first = normalizePublicUrl(yourSite);
+    const second = normalizePublicUrl(competitorSite);
+    if (!first) {
+      setValidationError("Enter your public website domain (for example, yoursite.com).");
+      yourInput.current?.focus();
       return;
     }
-    if (!other) {
-      setFormError("Enter a valid public website domain for the competitor (for example, competitor.com).");
-      secondInputRef.current?.focus();
+    if (!second) {
+      setValidationError("Enter a valid competitor website domain (for example, competitor.com).");
+      competitorInput.current?.focus();
       return;
     }
-    if (new URL(own).hostname.replace(/^www\./, "") === new URL(other).hostname.replace(/^www\./, "")) {
-      setFormError("Choose two different website domains to compare.");
-      secondInputRef.current?.focus();
+    if (first.hostname.replace(/^www\./, "") === second.hostname.replace(/^www\./, "")) {
+      setValidationError("Choose two different domains to compare.");
+      competitorInput.current?.focus();
       return;
     }
-    setFormError("");
-    setFormNotice("Frontend preview only — URL format looks valid, but no scan was started. The comparison engine will be connected in a later phase.");
-  };
+    setValidationError("");
+    setNotice("Both URLs look valid. This is a UI preview—no live comparison has started yet.");
+  }
+
+  function updateInput(value: string, site: "yours" | "competitor") {
+    if (site === "yours") setYourSite(value);
+    else setCompetitorSite(value);
+    setValidationError("");
+    setNotice("");
+  }
 
   return (
-    <div className="site-shell">
-      <div className="ambient ambient--top" aria-hidden="true"/>
+    <div className="app-shell">
       <header className="site-header" id="top">
-        <div className="container header-inner">
-          <a href="#top" className="brand-link" aria-label="VSYDE home"><BrandMark/></a>
+        <div className="container site-header__inner">
+          <a href="#top" className="brand-link" aria-label="VSYDE home"><BrandMark /></a>
           <nav className="desktop-nav" aria-label="Main navigation">
-            <a href="#sample-battle">Sample Battle</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
+            <a href="#sample">Product</a><a href="#signals">Methodology</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
           </nav>
-          <button className="button gradient-button nav-cta" onClick={startFromCTA}>Start Battle <ArrowRight size={17}/></button>
-          <button className="mobile-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X size={25}/> : <Menu size={25}/>}</button>
+          <button className="header-action" type="button" onClick={focusForm}>Start a battle <ArrowUpRight size={16}/></button>
+          <button className="mobile-menu-button" type="button" aria-label={mobileNavOpen ? "Close menu" : "Open menu"} aria-expanded={mobileNavOpen} aria-controls="mobile-navigation" onClick={() => setMobileNavOpen(v => !v)}>{mobileNavOpen ? <X size={22}/> : <Menu size={22}/>}</button>
         </div>
-        {menuOpen && (
-          <nav className="mobile-menu" aria-label="Mobile navigation">
-            <a href="#sample-battle" onClick={() => setMenuOpen(false)}>Sample Battle</a>
-            <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
-            <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
-            <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-            <button className="button gradient-button" onClick={startFromCTA}>Start Battle <ArrowRight size={17}/></button>
-          </nav>
-        )}
+        {mobileNavOpen && <nav className="mobile-nav" id="mobile-navigation" aria-label="Mobile navigation"><a href="#sample" onClick={() => setMobileNavOpen(false)}>Product</a><a href="#signals" onClick={() => setMobileNavOpen(false)}>Methodology</a><a href="#pricing" onClick={() => setMobileNavOpen(false)}>Pricing</a><a href="#faq" onClick={() => setMobileNavOpen(false)}>FAQ</a><button type="button" onClick={focusForm}>Start a battle <ArrowUpRight size={16}/></button></nav>}
       </header>
 
       <main>
-        <section className="hero-section container" aria-labelledby="hero-heading">
-          <div className="hero-copy">
-            <Pill><Zap size={16} fill="currentColor"/> AI-POWERED WEBSITE COMPARISON</Pill>
-            <h1 id="hero-heading">Your Website.<br/>Their Website.<br/><span className="gradient-text">Who Wins?</span></h1>
-            <p className="hero-description">See how your website compares with a competitor—and discover exactly where you can improve.</p>
-            <form id="start-battle" className="battle-form" onSubmit={submit} noValidate>
-              <div className="input-pair">
-                <label className="url-input"><Globe2 size={18}/><span className="sr-only">Your website</span><input ref={firstInputRef} value={yourURL} onChange={e=>{setYourURL(e.target.value);setFormError("");setFormNotice("");}} type="url" inputMode="url" autoComplete="url" placeholder="yourwebsite.com" aria-describedby={formError ? errorId : undefined}/></label>
-                <span className="input-vs" aria-hidden="true">VS</span>
-                <label className="url-input"><Globe2 size={18}/><span className="sr-only">Competitor website</span><input ref={secondInputRef} value={competitorURL} onChange={e=>{setCompetitorURL(e.target.value);setFormError("");setFormNotice("");}} type="url" inputMode="url" placeholder="competitor.com" aria-describedby={formError ? errorId : undefined}/></label>
-              </div>
-              <button className="button gradient-button hero-submit" type="submit">Start Free Battle <ArrowRight size={18}/></button>
-              {formError && <p className="form-message form-message--error" id={errorId} role="alert">{formError}</p>}
-              {formNotice && <p className="form-message form-message--notice" role="status">{formNotice}</p>}
-            </form>
-            <div className="hero-promises"><span><Zap size={14} fill="currentColor"/> No Signup</span><span><Gift size={14}/> Free Preview</span><span><Crown size={15}/> $29 Full Report</span></div>
+        <section className="hero container" aria-labelledby="hero-title">
+          <div className="hero__copy">
+            <div className="eyebrow hero__eyebrow"><span className="status-dot"/> WEBSITE EXPERIENCE INTELLIGENCE</div>
+            <h1 id="hero-title">Your website.<br/>Their website.<br/><span>One verdict.</span></h1>
+            <p>See which website gives buyers the clearer path to understand, trust and act. Then know exactly what to improve.</p>
           </div>
-          <div className="hero-reference-art" aria-hidden="true"><Image src="/hero-reference.webp" alt="" width={410} height={277} priority sizes="(max-width: 850px) 94vw, 48vw" /></div>
-        </section>
-
-        <section className="container" id="sample-battle" aria-labelledby="experience-heading">
-          <div className="experience-panel">
-            <div className="experience-copy">
-              <div className="experience-title"><ChartNoAxesCombined size={26}/><h2 id="experience-heading">The Battle Experience</h2></div>
-              <p>Get a detailed AI analysis with real screenshots and evidence-backed scores.</p>
-              <ul className="check-list"><li><Check size={15}/> Side-by-side comparison</li><li><Check size={15}/> Clear winner & reasons</li><li><Check size={15}/> Actionable improvement tips</li></ul>
-              <a className="outline-button" href="#sample-battle" onClick={(event) => { event.preventDefault(); document.querySelector(".experience-preview")?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>See Demo <ArrowRight size={16}/></a>
+          <form className="battle-form" id="start-battle" onSubmit={handleSubmit} noValidate>
+            <div className="battle-form__heading"><span>START A COMPARISON</span><span className="battle-form__scope"><LockKeyhole size={12}/> Public websites only</span></div>
+            <div className="battle-form__inputs">
+              <label className="website-field"><span className="website-field__label"><span className="site-dot site-dot--a"/> YOUR WEBSITE</span><span className="website-field__input"><Globe2 size={18}/><input ref={yourInput} inputMode="url" autoComplete="url" type="text" value={yourSite} onChange={e => updateInput(e.target.value, "yours")} aria-invalid={Boolean(validationError)} aria-describedby={validationError ? messageId : undefined} placeholder="yourwebsite.com"/></span></label>
+              <span className="vs-separator" aria-hidden="true">VS</span>
+              <label className="website-field"><span className="website-field__label"><span className="site-dot site-dot--b"/> COMPETITOR WEBSITE</span><span className="website-field__input"><Globe2 size={18}/><input ref={competitorInput} inputMode="url" type="text" value={competitorSite} onChange={e => updateInput(e.target.value, "competitor")} aria-invalid={Boolean(validationError)} aria-describedby={validationError ? messageId : undefined} placeholder="competitor.com"/></span></label>
             </div>
-            <div className="experience-preview">
-              <span className="demo-flag">ILLUSTRATIVE DEMO · NOT A REAL SCAN</span>
-              <div className="experience-site"><DemoWebsite variant="a"/><ScoreTile score={72} variant="a"/></div>
-              <span className="experience-vs">VS</span>
-              <div className="experience-site experience-site--winner"><span className="winner-pill"><Crown size={14} fill="currentColor"/> Sample leader</span><DemoWebsite variant="b"/><ScoreTile score={86} variant="b"/></div>
-            </div>
-          </div>
+            {validationError && <p className="form-feedback form-feedback--error" role="alert" id={messageId}>{validationError}</p>}
+            {notice && <p className="form-feedback form-feedback--notice" role="status">{notice}</p>}
+            <button className="primary-button battle-form__button" type="submit">Start Free Battle <ArrowUpRight size={18}/></button>
+            <p className="battle-form__foot">No signup <span/> Evidence-backed preview <span/> $29 one-time full report</p>
+          </form>
+          <div className="hero__endnote"><span className="hero__endline"/> BUILT FOR FOUNDERS WHO WANT ANSWERS, NOT ANOTHER DASHBOARD <span className="hero__endline"/></div>
         </section>
 
-        <section className="benefits-section container" id="how-it-works" aria-labelledby="benefits-heading">
-          <div className="section-heading"><Pill accent><Zap size={13} fill="currentColor"/> Why Choose VSYDE?</Pill><h2 id="benefits-heading">Get Real Insights. <span className="gradient-text">Instantly.</span></h2><p>Go beyond basic checks. VSYDE is designed for evidence-based comparisons and actionable results.</p></div>
-          <div className="benefit-grid">
-            {benefits.map(({title,text,Icon}) => <div className="benefit-card" key={title}><Icon size={30} strokeWidth={2.3}/><h3>{title}</h3><p>{text}</p></div>)}
-          </div>
-          <div className="workflow-strip"><span className="workflow-step"><b>01</b> Enter two public URLs</span><ArrowRight size={16}/><span className="workflow-step"><b>02</b> Compare the visible buyer experience</span><ArrowRight size={16}/><span className="workflow-step"><b>03</b> Review evidence & next steps</span></div>
+        <section className="product-section section-pad" id="sample" aria-labelledby="sample-title">
+          <div className="container"><div className="section-intro"><div><span className="eyebrow section-kicker">01 / THE PRODUCT</span><h2 id="sample-title">Proof over opinions.</h2></div><p>Two public websites. One consistent rubric. A clear explanation of what helped or hurt the buyer experience.</p></div><PreviewWindow/><p className="section-caption">Product preview with fictional domains and illustrative scores. Actual scans require the backend, which is not active in this UI phase.</p></div>
         </section>
 
-        <section className="pricing-section container" id="pricing" aria-labelledby="pricing-heading">
-          <div className="section-heading pricing-heading"><Pill>Simple & Transparent Pricing</Pill><h2 id="pricing-heading">Unlock the Complete Report</h2><p>Get detailed analysis, competitor strengths and prioritized improvements.</p></div>
-          <div className="pricing-layout">
-            <div className="pricing-checks"><p><CheckCircle2/> Detailed five-factor analysis</p><p><CheckCircle2/> Evidence-backed insights</p><p><CheckCircle2/> Five actionable improvements</p><p><CheckCircle2/> Copy-ready coding prompts</p></div>
-            <div className="pricing-card"><strong>$29</strong><span>One-Time Payment · Per Battle</span><button className="button gradient-button pricing-button" onClick={startFromCTA}>Start with Free Preview <ArrowRight size={19}/></button><small>Full report unlock comes after a successful preview. Checkout not active in this UI demo.</small></div>
-            <div className="report-visual" aria-label="Illustrative full report preview">
-              <Image className="report-reference-art" src="/report-reference.webp" width={291} height={233} sizes="(max-width: 850px) 0px, 28vw" alt="Illustrative report card from the supplied VSYDE reference" />
-              <span className="report-demo-label">EXAMPLE PREVIEW</span>
-            </div>
-          </div>
-        </section>
+        <section className="signals-section section-pad" id="signals" aria-labelledby="signals-title"><div className="container"><div className="section-intro"><div><span className="eyebrow section-kicker">02 / THE METHOD</span><h2 id="signals-title">Five signals. One standard.</h2></div><p>Each site is checked against the same buyer-focused criteria—not guessed conversion rates or invented customer behavior.</p></div><div className="signal-list">{factors.map(factor => <div className="signal-item" key={factor.number}><span className="signal-item__number">{factor.number}</span><h3>{factor.name}</h3><p>{factor.detail}</p><span className="signal-item__weight">{factor.weight}</span></div>)}</div></div></section>
 
-        <section className="faq-section container" id="faq" aria-labelledby="faq-heading">
-          <div className="faq-heading"><div className="faq-heading-copy"><span className="question-icon"><CircleHelp size={21}/></span><div><h2 id="faq-heading">Frequently Asked Questions</h2><p>Everything you need to know about VSYDE.</p></div></div><a href="#start-battle" className="faq-link" onClick={(e)=>{e.preventDefault();startFromCTA();}}>Start a battle <ArrowRight size={15}/></a></div>
-          <div className="faq-grid">{faqs.map(({q,a},i)=><div className={`faq-item ${activeFAQ===i?"faq-item--open":""}`} key={q}><button aria-expanded={activeFAQ===i} onClick={()=>setActiveFAQ(activeFAQ===i?null:i)}><span>{q}</span><ChevronDown size={17}/></button>{activeFAQ===i&&<p>{a}</p>}</div>)}</div>
-        </section>
+        <section className="workflow-section section-pad" id="how-it-works" aria-labelledby="workflow-title"><div className="container"><div className="section-intro"><div><span className="eyebrow section-kicker">03 / THE PROCESS</span><h2 id="workflow-title">From comparison to action.</h2></div><p>No account setup. No dashboards to learn. Just a straight path to a more effective website.</p></div><ol className="steps">{steps.map((step,index) => <li key={step.title}><span className="steps__number">0{index+1}</span><h3>{step.title}</h3><p>{step.detail}</p>{index !== steps.length - 1 && <ArrowRight className="steps__arrow" aria-hidden="true" size={17}/>}</li>)}</ol></div></section>
 
-        <section className="container final-cta-wrap" aria-label="Start your first battle"><div className="final-cta"><span className="final-cta-mark"><BrandMark compact/></span><span className="final-cta-divider"/><div className="final-cta-copy"><h2>Ready to see who wins?</h2><p>Start your first battle with a free comparison preview.</p></div><button className="button gradient-button final-cta-button" onClick={startFromCTA}>Start Battle <ArrowRight size={18}/></button></div></section>
+        <section className="pricing-section section-pad" id="pricing" aria-labelledby="pricing-title"><div className="container"><div className="section-intro"><div><span className="eyebrow section-kicker">04 / PRICING</span><h2 id="pricing-title">Know before you pay.</h2></div><p>See a useful preliminary comparison for free. Pay only if you want the deeper, actionable report.</p></div><div className="price-grid"><article className="price-card"><span className="price-card__tier">FREE PREVIEW</span><div className="price-card__price">$0</div><p>A useful starting point, backed by visible website evidence.</p><ul><li><Check size={16}/> Preliminary comparison verdict</li><li><Check size={16}/> Selected factor scores</li><li><Check size={16}/> One specific observed issue</li><li><Check size={16}/> Scan scope and limitations</li></ul><button type="button" className="secondary-button price-card__button" onClick={focusForm}>Start free <ArrowUpRight size={17}/></button></article><article className="price-card price-card--featured"><div className="price-card__tier-row"><span className="price-card__tier">FULL BATTLE REPORT</span><span className="price-card__once">ONE TIME</span></div><div className="price-card__price">$29<span> / battle</span></div><p>Real evidence and a prioritized plan you can put to work.</p><ul><li><Check size={16}/> All five comparison factors</li><li><Check size={16}/> Deeper supported buyer-path test</li><li><Check size={16}/> Five ranked improvements</li><li><Check size={16}/> Copy-ready implementation prompts</li></ul><button type="button" className="primary-button price-card__button" onClick={focusForm}>Start with free preview <ArrowUpRight size={17}/></button></article></div><div className="pricing-assurance"><ShieldCheck size={17}/><span>No subscription. No required login. Secure hosted checkout is planned for the backend phase.</span></div></div></section>
+
+        <section className="faq-section section-pad" id="faq" aria-labelledby="faq-title"><div className="container faq-layout"><div className="faq-layout__intro"><span className="eyebrow section-kicker">05 / FAQ</span><h2 id="faq-title">Good questions.<br/>Clear answers.</h2><p>What VSYDE does, what it doesn’t, and what to expect.</p></div><div className="faq-list">{faqs.map((item,index) => <div className={`faq-item ${openFaq === index ? "faq-item--open" : ""}`} key={item.question}><button type="button" aria-expanded={openFaq === index} onClick={() => setOpenFaq(openFaq === index ? null : index)}><span>{item.question}</span><ChevronDown size={18}/></button>{openFaq === index && <p>{item.answer}</p>}</div>)}</div></div></section>
+
+        <section className="final-section"><div className="container final-section__inner"><span className="eyebrow section-kicker">READY WHEN YOU ARE</span><h2>See your website<br/><span>with fresh eyes.</span></h2><p>A clearer view of your competition starts with two URLs.</p><button type="button" className="primary-button final-section__button" onClick={focusForm}>Start Free Battle <ArrowUpRight size={18}/></button></div></section>
       </main>
 
-      <footer className="site-footer"><div className="container footer-inner"><a href="#top" aria-label="Back to VSYDE home"><BrandMark compact/></a><div className="footer-links"><span title="Coming in a later phase">Privacy Policy</span><span title="Coming in a later phase">Terms of Service</span><span title="Coming in a later phase">Methodology</span><span title="Coming in a later phase">Contact</span></div><small>© {new Date().getFullYear()} VSYDE · UI Preview</small></div></footer>
+      <footer className="footer"><div className="container footer__main"><a href="#top" aria-label="Return to VSYDE home"><BrandMark small/></a><nav aria-label="Footer navigation"><a href="#sample">Product</a><a href="#signals">Methodology</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav><span>© {new Date().getFullYear()} VSYDE</span></div><div className="container footer__note"><CircleCheck size={14}/><span>Frontend preview only — live scanning, checkout and legal pages are not yet available.</span></div></footer>
     </div>
   );
 }

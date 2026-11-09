@@ -1,29 +1,33 @@
 # VSYDE
 
-Premium website-versus-website comparison landing page. This is **frontend UI/UX only** — no AI scanning, checkout, account creation, or backend requests are implemented yet.
+An evidence-first comparison experience for public websites. This repository currently contains **frontend UI only** — no browser scanning, AI analysis, account system or payment processing is connected.
 
-## Run locally
+## Landing design
+
+Minimal, dark, typography-led landing page with polished responsive layouts. No decorative hero artwork or borrowed website screenshots. The product preview uses CSS-built illustrative mock websites and prominently labelled example data.
+
+- Two-URL comparison entry form with **client-side format validation only**
+- Clearly illustrative product preview with sample verdict and evidence
+- Five-factor methodology and four-step buyer journey
+- Free preview vs $29 one-time report description
+- Accessible FAQ, responsive navigation, subtle motion and reduced-motion support
+
+Valid URLs show a *frontend demo only* notice. No network scan is triggered. Pricing buttons return visitors to the free form; they do not start checkout. Legal pages will be added when actual terms and policies are ready.
+
+## Run
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000. Run `npm run typecheck` and `npm run build` before shipping.
+Before release:
 
-## Current scope
+```bash
+npm run typecheck
+npm run build
+```
 
-- Responsive landing hero and two-URL form with **client-side UX validation only**
-- CSS-illustrated comparison artwork and clearly labelled **illustrative sample** (not real scan evidence)
-- Battle experience, benefits, price presentation, FAQs and final CTA
-- Mobile navigation, accessible interactions, reduced-motion styles
+## Stack
 
-Submitting valid URLs shows a clear **frontend demo only** message; it does **not** perform a website scan. The $29 report is not purchasable in this phase. Legal pages, the battle room, results and all backend work belong to future phases.
-
-## Implementation
-
-Next.js App Router + React + TypeScript + custom CSS design system. Client-side sections are in `components/LandingPage.tsx`; global design and responsive motion rules are in `app/globals.css`.
-
-## Design notes
-
-Visual reference: the supplied VSYDE landing page screenshot. The sample battle uses stylized placeholder websites, sample scores and prominent demo labels to avoid misrepresenting actual analysis. The VSYDE icon is a vector approximation; replace it with the exact supplied approved logo asset when available.
+Next.js 15 App Router, React 19, TypeScript, CSS, Lucide icons. Layout in `components/LandingPage.tsx`, styling in `app/globals.css`.
