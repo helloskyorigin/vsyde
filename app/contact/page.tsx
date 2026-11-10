@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/InfoPage";
-export const metadata: Metadata = { title: "Contact | vsyde", description: "vsyde contact and support availability during the frontend preview." };
+
+export const metadata: Metadata = { title: "Contact", description: "How to submit feedback about the vsyde pre-launch frontend preview." };
+
 export default function Page() {
-  return <InfoPage eyebrow="Support · Pre-launch" title="Get in touch" intro="Support should be simple, clear and accessible—once the live product is ready." notice="An official support address has not been provided or verified yet. This page is working, but it is not an active customer-support inbox or ticket form. We won't invent an address or imply someone is monitoring messages." sections={[
-    {heading:"Current frontend phase", content:"You can explore the landing page, comparison form design and example report layout. Real scanning, billing, private report recovery and live support are not available in this preview."},
-    {heading:"Support once live", content:"Before launch, this page needs a verified support contact for scan issues, inaccessible websites, payment inquiries, refunds, privacy requests and report-access problems."},
-    {heading:"Product transparency", content:"Want to understand the planned comparison criteria? Visit the Methodology page from the navigation below for the five-factor rubric and limitations."},
+  return <InfoPage eyebrow="Contact · Pre-launch" title="Get in touch" intro="vsyde is still a frontend preview. Here's what you can do today and what isn't available yet." notice="There is no verified private support inbox at this stage. A public GitHub issue is suitable only for non-sensitive frontend feedback; do not share personal data, payment information or private website URLs." sections={[
+    { heading: "Report a frontend issue", content: <p>Found a layout bug or accessibility issue? <a href="https://github.com/helloskyorigin/vsyde/issues/new?template=frontend-feedback.yml" target="_blank" rel="noopener noreferrer">Open a public frontend feedback issue ↗</a>. A GitHub account may be required.</p> },
+    { heading: "Billing and refund support", content: "Billing, refunds and paid reports aren't active in this preview. A verified private contact channel will be published before the product accepts payments or personal support requests." },
+    { heading: "Methodology and limitations", content: "For details on how the planned comparison works and what the tool can and cannot measure, visit Methodology from the navigation below." },
   ]}/>;
 }

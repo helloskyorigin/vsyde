@@ -1,0 +1,32 @@
+name: Frontend bug report
+description: Report a visual or accessibility issue in the public landing-page preview.
+title: "[Landing] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a **public** GitHub issue, not private customer support.
+        Do not post passwords, private URLs, payment information, personal contact details or other sensitive data.
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Mobile
+        - Desktop
+        - Tablet
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong?
+      description: Include visible layout behavior, steps to reproduce and your browser. Use fictional example URLs.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true

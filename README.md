@@ -1,44 +1,43 @@
 # vsyde
 
-Premium, light-theme vsyde landing-page frontend. Built from the approved rounded, centered, blue-accent design direction.
+Premium, responsive website-comparison landing-page frontend. **The AI scanner, checkout and paid report delivery are not yet connected.** All displayed report values and findings are explicitly fictional examples.
 
 ## Stack
 
-Next.js App Router + TypeScript + React + CSS + Lucide icons. The previous project's dependency versions are unchanged.
+- Next.js App Router 15.5.29 (patched maintenance LTS), React 19.1.10, TypeScript
+- CSS-only responsive design with platform-native font stack (no third-party font requests)
+- Lucide icon components
+- No analytics, cookies, image hosts, or remote UI assets added in this phase
 
 ## Run
 
 ```bash
 npm install
+npm run test
 npm run typecheck
-npm run dev
 npm run build
+npm run dev
 ```
 
-## Scope
+GitHub Actions runs unit tests, type checking and production build on pushes and PRs. The repository does not yet include a committed `package-lock.json` because the implementation environment cannot reach the npm registry. After network access is available, run `npm install` and **commit the resulting lockfile**, then change the CI installation command to `npm ci`.
 
-- Floating, translucent pill navigation with mobile menu.
-- Centered URL comparison form, helpful client-side validation and focus handling.
-- Responsive example comparison report, five-factor rubric, three-step explainer, pricing and FAQ.
-- Rounded surfaces, restrained ambient glow, accessible focus states, reduced-motion support.
-- Basic draft information routes for methodology, privacy, terms, refunds and contact, all clearly marked where policy details remain to be finalized.
+## Delivered UI
 
-**No live comparison, AI scanning, real screenshots, checkout or email report delivery is connected yet.** The report preview uses example-only values and must never be presented as an actual completed scan. Client URL checks are UX guidance, not the server-side security validation required before real scanning.
+- Sticky floating navigation and responsive mobile menu
+- Centered dual-URL form, independent field validation, accessible errors and honest preview message
+- Interactive fictional sample report: Overview / Evidence / Fix plan, with keyboard arrow tabs
+- A consistent five-factor scoring rubric, evidence policy, clear three-step process and honest free/$29 pricing
+- Readable mobile layouts, content-first scroll reveals, native system font stack, reduced-motion behavior
+- FAQ, footer, legal/information routes and public frontend-feedback issue template
+- SEO metadata, automatically generated OpenGraph card, configurable robots/sitemap with `NEXT_PUBLIC_SITE_URL`
 
-## Before production release
+## Production configuration
 
-- Validate real checkout, live scans and abuse protection before enabling service claims.
-- Confirm the operator's legal identity, support channel, privacy practices, retention policy and refund conditions; replace draft pages accordingly.
-- Verify desktop/mobile rendering, keyboard navigation and build pipeline in CI.
-- Replace the compact vector V mark with an exact approved logo asset if supplied.
+Set `NEXT_PUBLIC_SITE_URL` to the canonical production origin (e.g. your real custom domain, **not a placeholder**) to publish absolute canonical links and a sitemap. The homepage URL is unknown until deployment, so no origin is invented.
 
+## Release blockers
 
-## Latest landing QA/design pass
-
-- Brand wordmark and page metadata display `vsyde` in lowercase.
-- Centered URL submission with visible labels and honest frontend-only feedback.
-- Added value-led evidence, fairness and illustrative improvement sections; improved editorial typography and visual hierarchy.
-- One-time IntersectionObserver reveal effects, never a fake progress indicator; reduced-motion respected.
-- New closing CTA and full navigation across five pre-launch information pages.
-- These legal/info pages are accessible and useful, but not a substitute for operator-approved legal policies or a verified support channel.
-- Real Next.js production build and interactive browser QA are required before launch.
+- **No live scanning or payment**: frontend-only demo until backend is explicitly built and verified. The URL format check does not replace server-side SSRF, DNS and redirect protections.
+- **Legal pages are pre-launch drafts**: verify the operator's identity, merchant country, retention/deletion practices, payment provider, exact refund conditions, and privacy/support contacts before real transactions.
+- **Contact is not private support**: public GitHub issues are for nonsensitive frontend feedback only.
+- Run the actual GitHub Actions build, a deployed mobile/desktop browser test, cross-browser accessibility checks, and confirm Web Vitals before launch.
