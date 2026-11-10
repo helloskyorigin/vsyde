@@ -61,6 +61,6 @@ for (const path of ["privacy", "terms", "refund-policy", "methodology", "contact
   test(`${path} information route opens`, async ({ page }) => {
     await page.goto(`/${path}`);
     await expect(page.locator(".info-content h1")).toBeVisible();
-    await expect(page.getByRole("link", { name: /vsyde home/i })).toBeVisible();
+    await expect(page.locator(".info-nav").getByRole("link", { name: "vsyde home" })).toBeVisible();
   });
 }
