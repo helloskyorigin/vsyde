@@ -218,7 +218,7 @@ test("browser screenshots can zoom, mobile tabs switch, and free results open", 
   await expect(page.locator(".br-finding")).toHaveCount(3);
   await expect(page.locator(".br-fix")).toHaveCount(3);
   await expect(page.locator(".br-main")).not.toContainText("$19");
-  await page.getByRole("link", { name: "Change websites" }).click();
+  await page.getByRole("link", { name: "Edit websites" }).click();
   await expect(page.locator("#own-url")).toHaveValue("https://example.com/");
   await expect(page.locator("#competitor-url")).toHaveValue("https://example.org/");
 });
