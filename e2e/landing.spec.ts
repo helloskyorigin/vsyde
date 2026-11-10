@@ -28,7 +28,8 @@ test("independent URL validation, same-domain prevention and honest notice", asy
   await expect(other).toHaveAttribute("aria-invalid", "true");
   await other.fill("competitor.org");
   await submit.click();
-  await expect(page.getByRole("status")).toContainText("Website scanning is not available yet");
+  await expect(page).toHaveURL(/\/battle\?own=/);
+  await expect(page.locator(".battle-site")).toHaveCount(2);
 });
 
 test("sample report tabs and FAQ are keyboard accessible", async ({ page }) => {
@@ -113,4 +114,47 @@ test("public pricing and contact details stay consistent", async ({ page }) => {
   }
   await page.goto("/contact");
   await expect(page.getByRole("link", { name: "hello.skyorigin@gmail.com" }).first()).toHaveAttribute("href", /mailto:hello\.skyorigin@gmail\.com/);
+});
+
+test("battle room handles captures and shows real domains", async ({ page }) => {
+  await page.route("**/api/battle/preview?**", async route => {
+    await route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ error: "Website preview temporarily unavailable." }) });
+  });
+  await page.goto("/");
+  await page.locator("#own-url").fill("https://www.example.com");
+  await page.locator("#competitor-url").fill("https://example.org");
+  await page.locator(".form-submit").click();
+  await expect(page).toHaveURL(/\/battle\?own=/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your battle starts here");
+  await expect(page.locator(".battle-site")).toHaveCount(2);
+  await expect(page.locator(".battle-site--one")).toContainText("www.example.com");
+  await expect(page.locator(".battle-site--two")).toContainText("example.org");
+  await expect(page.locator(".battle-viewport-error")).toHaveCount(2);
+  await expect(page.locator(".battle-viewport-error").first()).toContainText("Website preview temporarily unavailable.");
+  await expect(page.locator(".battle-stage--current")).toContainText("Limited");
+  await expect(page.getByRole("link", { name: "Open www.example.com in a new tab" })).toHaveAttribute("href", "https://www.example.com/");
+});
+
+for (const width of [320, 375, 390, 768, 1024, 1440]) {
+  test(`battle room fits width ${width}px, including saved dark mode`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.route("**/api/battle/preview?**", async route => {
+      await route.fulfill({ status: 422, contentType: "application/json", body: JSON.stringify({ error: "Could not capture this page." }) });
+    });
+    await page.goto("/battle?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
+    await expect(page.locator(".battle-site")).toHaveCount(2);
+    await expect(page.locator(".battle-viewport-error")).toHaveCount(2);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+    expect(overflow).toBe(false);
+    await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+  });
+}
+test("battle room rejects invalid or repeated domains", async ({ page }) => {
+  await page.goto("/battle?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fwww.example.com");
+  await expect(page.getByRole("heading", { name: "Two websites. One battle." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose websites" })).toBeVisible();
 });

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import { normalizePublicURL, sameWebsite } from "@/lib/url-validation";
 import {
@@ -96,6 +97,7 @@ function SampleReport() {
 }
 
 export default function LandingPage() {
+  const router = useRouter();
   const [yourSite, setYourSite] = useState("");
   const [competitor, setCompetitor] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -156,7 +158,8 @@ export default function LandingPage() {
     setErrors(next);
     if (next.own) { firstRef.current?.focus(); return; }
     if (next.competitor) { secondRef.current?.focus(); return; }
-    setNotice("Both URLs are valid. Website scanning is not available yet. Questions? Email hello.skyorigin@gmail.com.");
+    const query = new URLSearchParams({ own: own!.href, competitor: other!.href });
+    router.push(`/battle?${query.toString()}`);
   }
 
   function clearError(field: Field) { setErrors(old => ({ ...old, [field]: undefined })); setNotice(""); }

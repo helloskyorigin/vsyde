@@ -43,3 +43,7 @@ Set `NEXT_PUBLIC_SITE_URL` to the canonical production origin (e.g. your real cu
 - **Legal pages are pre-launch drafts**: verify the operator's identity, merchant country, retention/deletion practices, payment provider, exact refund conditions, and privacy/support contacts before real transactions.
 - **Contact is not private support**: public GitHub issues are for nonsensitive frontend feedback only.
 - Run the actual GitHub Actions build, a deployed mobile/desktop browser test, cross-browser accessibility checks, and confirm Web Vitals before launch.
+
+## Battle Room (screenshot preview)
+
+The landing form now navigates to `/battle?own=...&competitor=...`. Battle Room validates both public URLs and requests live public-page screenshots through `/api/battle/preview`, proxied from Thum.io. Failed captures show retry and an open-site link; no mock scoring or simulated processing percentages. The 5-stage list is deliberately limited to screenshot capture until actual server-driven comparison jobs exist. URLs are sent to the screenshot provider, as described in Privacy. Throttle and abuse controls should be implemented before high traffic. The screenshot provider is an external dependency and public websites may block captures.
