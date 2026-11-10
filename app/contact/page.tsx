@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/InfoPage";
-
-export const metadata: Metadata = { title: "Contact | VSYDE" };
+export const metadata: Metadata = { title: "Contact | vsyde", description: "vsyde contact and support availability during the frontend preview." };
 export default function Page() {
-  return <InfoPage eyebrow="Support" title="Contact VSYDE" intro="Support information for VSYDE's upcoming website-comparison product." notice="The official support email and contact process have not yet been provided. We won't invent a contact address or present an unmonitored form as active support." sections={[
-    { heading: "Before launch", content: "The current frontend is a demonstration. You cannot submit a battle, purchase a report, or open a customer service ticket through this preview." },
-    { heading: "At launch", content: "This page will provide a verified support channel for scan issues, result access, billing, refunds and privacy requests before those features go live." },
+  return <InfoPage eyebrow="Support · Pre-launch" title="Get in touch" intro="Support should be simple, clear and accessible—once the live product is ready." notice="An official support address has not been provided or verified yet. This page is working, but it is not an active customer-support inbox or ticket form. We won't invent an address or imply someone is monitoring messages." sections={[
+    {heading:"Current frontend phase", content:"You can explore the landing page, comparison form design and example report layout. Real scanning, billing, private report recovery and live support are not available in this preview."},
+    {heading:"Support once live", content:"Before launch, this page needs a verified support contact for scan issues, inaccessible websites, payment inquiries, refunds, privacy requests and report-access problems."},
+    {heading:"Product transparency", content:"Want to understand the planned comparison criteria? Visit the Methodology page from the navigation below for the five-factor rubric and limitations."},
   ]}/>;
 }

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/InfoPage";
-
-export const metadata: Metadata = { title: "Methodology | VSYDE" };
+export const metadata: Metadata = { title: "Methodology | vsyde", description: "How vsyde intends to evaluate public websites fairly." };
 export default function Page() {
-  return <InfoPage eyebrow="How scoring works" title="Our methodology" intro="A fair, evidence-first way to compare two public websites from a buyer's perspective." sections={[
-    { heading: "One rubric for both sites", content: "VSYDE applies the same inspection conditions and factor weights to both public websites. It does not change ratings based on who owns a site or who pays for the report." },
-    { heading: "The five factors", content: <ul><li>Offer clarity — 25%: what the product does and who it serves.</li><li>Trust signals — 20%: visible proof and credibility cues.</li><li>Pricing clarity — 20%: cost visibility or a clear next pricing step.</li><li>CTA path — 20%: how obvious and relevant the next action is.</li><li>Buying friction — 15%: obstacles in the accessible buyer path.</li></ul> },
-    { heading: "Evidence and limitations", content: "Each finding should point to something observed on a public page. Results may be marked close match, partial or inconclusive when evidence is missing or sites cannot be compared fairly. VSYDE does not claim measured conversions, sales, traffic or actual human preference." },
-    { heading: "Current implementation", content: "The landing page and example report are frontend previews. The browser scanning and AI comparison services are not yet connected." },
+  return <InfoPage eyebrow="How it works" title="Methodology" intro="A consistent, buyer-focused comparison should explain not only the verdict but the evidence behind it." sections={[
+    {heading:"One rubric, two websites", content:"Both public sites will be inspected using matching browser conditions, viewport sizes and comparable buyer objectives. Paying for a report will not change the scores. Different business models or missing evidence can make a comparison inconclusive."},
+    {heading:"The five weighted signals", content:<ul><li>Offer clarity — 25%. What is offered, to whom, and what outcome it supports.</li><li>Trust signals — 20%. Visible credible proof, transparent business details and help information.</li><li>Pricing clarity — 20%. Understandable pricing or a clear route to the next pricing step.</li><li>CTA path — 20%. Whether the primary action is visible, clear and relevant.</li><li>Buying friction — 15%. Observable confusion or obstacles along an accessible public buying path.</li></ul>},
+    {heading:"Evidence, confidence and coverage", content:"A supported finding should reference a captured page, visible excerpt or tested public action. Report confidence and coverage need to be distinguished from the website score. Blocked or unavailable material should be labeled honestly."},
+    {heading:"Possible outcomes", content:"The intended verdicts are Your Site Wins, Competitor Wins, Close Match and Inconclusive. A missing or blocked page does not automatically count as a loss."},
+    {heading:"What a website scan cannot establish", content:"A public website analysis cannot infer real conversion rates, purchase behavior, traffic numbers, SEO ranking or actual user preferences. Improvements are proposed website changes, not guaranteed sales outcomes."},
+    {heading:"Current implementation status", content:"All sample scores shown on the landing page are illustrative. The browser scanner, AI analysis, hosted checkout and report delivery are not yet connected to this frontend."},
   ]}/>;
 }
