@@ -290,3 +290,14 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+/* One-time, low-key motion that does not imitate scan progress. */
+@keyframes vsyde-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .nav-wrap { animation: vsyde-enter .46s cubic-bezier(.2,.8,.2,1) both; }
+  .hero-heading { animation: vsyde-enter .58s .06s cubic-bezier(.2,.8,.2,1) both; }
+  .comparison-form { animation: vsyde-enter .64s .12s cubic-bezier(.2,.8,.2,1) both; }
+  .report-preview { animation: vsyde-enter .72s .15s cubic-bezier(.2,.8,.2,1) both; }
+  .step-card, .price-card { transition: transform .22s ease, box-shadow .22s ease; }
+  @media (hover: hover) { .step-card:hover, .price-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-raised); } }
+}

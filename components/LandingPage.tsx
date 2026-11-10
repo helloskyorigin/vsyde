@@ -8,8 +8,6 @@ import {
   BarChart3,
   Check,
   ChevronDown,
-  FileSearch,
-  Globe2,
   Link2,
   Menu,
   MousePointer2,
@@ -39,14 +37,6 @@ const faq = [
   { q: "What if a website cannot be inspected?", a: "An inaccessible or blocked page should produce a limited or inconclusive result, not an automatic loss. The future scanner will explain what could not be checked." },
   { q: "Is the $29 report a subscription?", a: "No. The planned Full Battle Report is a single $29 payment per completed comparison. Payment checkout is not connected in the current frontend preview." },
 ];
-
-const scoreRows = [
-  ["Offer clarity", 8, 6],
-  ["Trust signals", 7, 7],
-  ["Pricing clarity", 8, 6],
-  ["CTA path", 9, 6],
-  ["Buying friction", 7, 6],
-] as const;
 
 function Brand({ small = false }: { small?: boolean }) {
   return (
