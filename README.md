@@ -16,10 +16,12 @@ npm install
 npm run test
 npm run typecheck
 npm run build
+npx playwright install chromium
+npm run test:e2e
 npm run dev
 ```
 
-GitHub Actions runs unit tests, type checking and production build on pushes and PRs. The repository does not yet include a committed `package-lock.json` because the implementation environment cannot reach the npm registry. After network access is available, run `npm install` and **commit the resulting lockfile**, then change the CI installation command to `npm ci`.
+GitHub Actions runs unit tests, type checking, production build and browser viewport/interaction checks on pushes and PRs. The repository does not yet include a committed `package-lock.json` because the implementation environment cannot reach the npm registry. After network access is available, run `npm install` and **commit the resulting lockfile**, then change the CI installation command to `npm ci`.
 
 ## Delivered UI
 
