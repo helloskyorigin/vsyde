@@ -23,11 +23,11 @@ const signals = [
 ];
 
 const faq = [
-  { q: "Is vsyde free to try?", a: "The planned comparison starts with a free, evidence-backed preview. The $29 full report is optional. Live scanning is not enabled in this frontend preview yet." },
+  { q: "Is vsyde free to try?", a: "A free comparison preview is planned, followed by an optional $19 one-time report. Automated scans are not available yet." },
   { q: "Do I need an account?", a: "No account is planned for V1. When report delivery launches, buyers will access their private report through a secure link." },
   { q: "How does vsyde compare two websites?", a: "The intended analysis uses the same five buyer-experience criteria for both public websites. Every finding should have observable evidence, a confidence note, and a clear limitation where necessary." },
-  { q: "What if a site blocks inspection?", a: "Blocked or inaccessible pages should result in a limited or inconclusive evaluation, never an automatic loss. The live scanning engine has not been connected yet." },
-  { q: "Is the $29 report a subscription?", a: "No. The planned price is $29 once per completed full battle report. There are no recurring tiers and checkout is not active on this preview." },
+  { q: "What if a site blocks inspection?", a: "Blocked or inaccessible pages should result in a limited or inconclusive evaluation, never an automatic loss." },
+  { q: "Is the $19 report a subscription?", a: "No subscription. The listed full battle report price is $19 once per completed comparison. Checkout is not available yet." },
   { q: "Can I share my report?", a: "When report delivery launches, full reports will be private by default and accessible through a shareable, unguessable link. Anyone with that link may be able to open it." },
 ];
 
@@ -45,7 +45,7 @@ function Score({ name, score, other = false }: { name: string; score: number; ot
     <div className="report-score">
       <div className="report-score__heading"><span className={`site-dot ${other ? "site-dot--other" : ""}`}/><span>{name}</span></div>
       <strong>{score.toFixed(1)}<small>/10</small></strong>
-      <div className="score-track" aria-label={`Illustrative score: ${score} out of 10`} role="img">
+      <div className="score-track" aria-label={`Sample score: ${score} out of 10`} role="img">
         <span className={other ? "other" : ""} style={{ width: `${score * 10}%` }}/>
       </div>
     </div>
@@ -58,37 +58,37 @@ function SampleReport() {
     { id: "overview", title: "Overview" }, { id: "evidence", title: "Evidence" }, { id: "fixes", title: "Fix plan" },
   ];
   return (
-    <div className="report-window" aria-label="Interactive sample report with fictional examples">
+    <div className="report-window" aria-label="Sample comparison report">
       <div className="report-toolbar">
         <div className="report-toolbar__brand"><span className="toolbar-dots" aria-hidden="true"><i/><i/><i/></span><strong>vsyde <span>/ report</span></strong></div>
-        <span className="sample-chip"><span aria-hidden="true"/> Sample interface · fictional data</span>
+        <span className="sample-chip"><span aria-hidden="true"/> Sample report · Not a live scan</span>
       </div>
       <div className="report-tabs" role="tablist" aria-label="Sample report views">
         {tabs.map(({ id, title }) => <button key={id} type="button" role="tab" id={`tab-${id}`} aria-controls={tab === id ? `panel-${id}` : undefined} aria-selected={tab === id} tabIndex={tab === id ? 0 : -1} className={tab === id ? "active" : ""} onClick={() => setTab(id)} onKeyDown={e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; e.preventDefault(); const idx = tabs.findIndex(t => t.id === tab); const next = tabs[(idx + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length].id; setTab(next); document.getElementById(`tab-${next}`)?.focus(); }}>{title}</button>)}
       </div>
       <div className="report-body">
         {tab === "overview" && <div role="tabpanel" aria-labelledby="tab-overview" id="panel-overview" className="report-panel" key="overview">
-          <div className="report-topline"><div><span className="micro-label">Example battle</span><h3>Two sites. A clearer picture.</h3></div><span className="confidence-chip">Illustrative</span></div>
+          <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Two sites. A clearer picture.</h3></div><span className="confidence-chip">Overview</span></div>
           <div className="report-score-grid"><Score name="yourwebsite.com" score={8.3}/><Score name="competitor.com" score={6.7} other/></div>
-          <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>Example verdict: Your site leads</strong><p>Clearer positioning and a more specific call to action in this fictional comparison.</p></div></div>
-          <div className="report-bottomline"><div><span className="micro-label">What you would see</span><strong>Scores backed by visible observations</strong></div><p>Not a real scan · Actual reports will show captured sources and limits.</p></div>
+          <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>Your site leads</strong><p>Clearer positioning and a more specific call to action.</p></div></div>
+          <div className="report-bottomline"><div><span className="micro-label">What you would see</span><strong>Scores backed by visible observations</strong></div><p>A completed report shows evidence, sources and limitations.</p></div>
         </div>}
         {tab === "evidence" && <div role="tabpanel" aria-labelledby="tab-evidence" id="panel-evidence" className="report-panel" key="evidence">
-          <div className="report-topline"><div><span className="micro-label">Example evidence</span><h3>See the reason behind the score.</h3></div><span className="confidence-chip">Fictional example</span></div>
+          <div className="report-topline"><div><span className="micro-label">Evidence</span><h3>See the reason behind the score.</h3></div><span className="confidence-chip">Clarity</span></div>
           <div className="evidence-grid">
-            <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">Site A · offer clarity</span><strong>Clear action in the hero</strong><p>The fictional page states its core audience and main action near the top.</p><small>Source: example placeholder · not inspected</small></div>
-            <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">Site B · offer clarity</span><strong>Headline needs specificity</strong><p>The fictional page uses a broad headline without saying what the product does.</p><small>Source: example placeholder · not inspected</small></div>
+            <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">Site A · offer clarity</span><strong>Clear action in the hero</strong><p>The headline identifies the audience and makes the next action clear.</p><small>Evidence source shown with a completed report</small></div>
+            <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">Site B · offer clarity</span><strong>Headline needs specificity</strong><p>A broad headline leaves the buyer unsure what the product does.</p><small>Source: example placeholder · not inspected</small></div>
           </div>
-          <p className="report-disclaimer">In a real report, findings will include the actual inspected URL, capture timestamp and coverage limitations.</p>
+          <p className="report-disclaimer">Completed reports are designed to include inspected URLs, timestamps and coverage details.</p>
         </div>}
         {tab === "fixes" && <div role="tabpanel" aria-labelledby="tab-fixes" id="panel-fixes" className="report-panel" key="fixes">
-          <div className="report-topline"><div><span className="micro-label">Example action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Illustrative</span></div>
+          <div className="report-topline"><div><span className="micro-label">Action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Prioritized</span></div>
           <div className="fix-list">
             <div className="fix-item"><span>P0</span><div><strong>Make the first headline specific</strong><p>Explain the offer, audience and outcome in plain language.</p></div><small>High impact · Low effort</small></div>
             <div className="fix-item"><span>P1</span><div><strong>Clarify the primary CTA</strong><p>Choose an action label that matches the next step.</p></div><small>Medium effort</small></div>
             <div className="fix-item"><span>P2</span><div><strong>Surface verifiable trust information</strong><p>Place genuine proof near the purchase decision.</p></div><small>Validate first</small></div>
           </div>
-          <p className="report-disclaimer">Actual full reports are planned to include prioritized fixes and copy-ready implementation prompts.</p>
+          <p className="report-disclaimer">Full reports will include prioritized fixes and copy-ready implementation prompts when report delivery launches.</p>
         </div>}
       </div>
     </div>
@@ -136,7 +136,7 @@ export default function LandingPage() {
 
   function focusForm(fromPricing = false) {
     setMenuOpen(false);
-    if (fromPricing) setNotice("Full reports follow a free preview. Checkout isn't active in this UI phase.");
+    if (fromPricing) setNotice("Full reports will be available for $19 after the free preview. Payments are not open yet.");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("compare")?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
     window.setTimeout(() => firstRef.current?.focus({ preventScroll: true }), reduced ? 0 : 300);
@@ -156,7 +156,7 @@ export default function LandingPage() {
     setErrors(next);
     if (next.own) { firstRef.current?.focus(); return; }
     if (next.competitor) { secondRef.current?.focus(); return; }
-    setNotice("Both URL formats look valid. This frontend preview does not run a scan yet; the comparison engine will be connected in a later phase.");
+    setNotice("Both URLs are valid. Website scanning is not available yet. Questions? Email hello.skyorigin@gmail.com.");
   }
 
   function clearError(field: Field) { setErrors(old => ({ ...old, [field]: undefined })); setNotice(""); }
@@ -190,10 +190,10 @@ export default function LandingPage() {
             <div className={`input-shell ${errors.competitor ? "input-shell--invalid" : ""}`}><Link2 size={19} aria-hidden="true"/><input ref={secondRef} id="competitor-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="competitor.com" value={competitor} onChange={event => { setCompetitor(event.target.value); clearError("competitor"); }} aria-invalid={!!errors.competitor} aria-describedby={errors.competitor ? `${errorId}-competitor` : undefined}/></div>
             {errors.competitor && <p className="field-error" id={`${errorId}-competitor`} role="alert">{errors.competitor}</p>}
             <button type="submit" className="primary-button form-submit">Start Free Battle <ArrowUpRight size={18} aria-hidden="true"/></button>
-            <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $29 one-time full report</p>
+            <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $19 one-time full report</p>
             {notice && <p className="form-notice" role="status">{notice}</p>}
           </form>
-          <a className="hero-product-link" href="#product">Explore the sample report <ArrowRight size={16} aria-hidden="true"/></a>
+          <a className="hero-product-link" href="#product">Explore the report <ArrowRight size={16} aria-hidden="true"/></a>
         </section>
 
         <section id="product" className="product-section content-width" aria-labelledby="product-title" data-reveal>
@@ -213,20 +213,20 @@ export default function LandingPage() {
 
         <section id="how-it-works" className="how-section content-width" aria-labelledby="how-title" data-reveal>
           <div className="section-heading"><span className="section-overline">THREE SIMPLE STEPS</span><h2 id="how-title">From two URLs<br/><em>to better decisions.</em></h2></div>
-          <div className="steps-list"><div className="step"><span className="step-number">01</span><span className="step-icon"><Link2 size={22}/></span><div><h3>Enter two websites</h3><p>Your site and one public competitor. No signup.</p></div></div><div className="step"><span className="step-number">02</span><span className="step-icon"><Eye size={22}/></span><div><h3>See the free preview</h3><p>A preliminary verdict, selected scores and a supported finding.</p></div></div><div className="step"><span className="step-number">03</span><span className="step-icon"><Sparkles size={22}/></span><div><h3>Unlock the full report</h3><p>Deeper evidence, prioritized fixes and implementation prompts for $29.</p></div></div></div>
+          <div className="steps-list"><div className="step"><span className="step-number">01</span><span className="step-icon"><Link2 size={22}/></span><div><h3>Enter two websites</h3><p>Your site and one public competitor. No signup.</p></div></div><div className="step"><span className="step-number">02</span><span className="step-icon"><Eye size={22}/></span><div><h3>See the free preview</h3><p>A preliminary verdict, selected scores and a supported finding.</p></div></div><div className="step"><span className="step-number">03</span><span className="step-icon"><Sparkles size={22}/></span><div><h3>Unlock the full report</h3><p>Deeper evidence, prioritized fixes and implementation prompts for $19.</p></div></div></div>
         </section>
 
         <section id="pricing" className="pricing-section content-width" aria-labelledby="pricing-title" data-reveal>
           <div className="section-heading"><span className="section-overline">TRANSPARENT PRICING</span><h2 id="pricing-title">See the value first.<br/><em>Pay only if you want more.</em></h2></div>
           <div className="price-grid"><article className="price-card"><span className="price-name">Free preview</span><div className="price-amount">$0</div><p>A useful first look at the comparison.</p><ul><li><Check size={17}/> Preliminary verdict</li><li><Check size={17}/> Selected factor scores</li><li><Check size={17}/> One evidence-backed finding</li><li><Check size={17}/> Scope and limitations</li></ul><button type="button" className="secondary-button price-button" onClick={() => focusForm()}>Start free <ArrowUpRight size={18}/></button></article>
-          <article className="price-card price-card--featured"><div className="price-card__top"><span className="price-name">Full battle report</span><span className="price-tag">ONE TIME</span></div><div className="price-amount">$29<span> / battle</span></div><p>Everything behind the verdict, ready to act on.</p><ul><li><Check size={17}/> Full five-factor comparison</li><li><Check size={17}/> Deeper buyer-path evidence</li><li><Check size={17}/> Prioritized improvement plan</li><li><Check size={17}/> Copy-ready coding prompts</li></ul><button type="button" className="primary-button price-button" onClick={() => focusForm(true)}>Start with free preview <ArrowUpRight size={18}/></button></article></div>
+          <article className="price-card price-card--featured"><div className="price-card__top"><span className="price-name">Full battle report</span><span className="price-tag">ONE TIME</span></div><div className="price-amount">$19<span> / battle</span></div><p>Everything behind the verdict, ready to act on.</p><ul><li><Check size={17}/> Full five-factor comparison</li><li><Check size={17}/> Deeper buyer-path evidence</li><li><Check size={17}/> Prioritized improvement plan</li><li><Check size={17}/> Copy-ready coding prompts</li></ul><button type="button" className="primary-button price-button" onClick={() => focusForm(true)}>Start with free preview <ArrowUpRight size={18}/></button></article></div>
         </section>
 
         <section id="faq" className="faq-section content-width" aria-labelledby="faq-title" data-reveal><div className="section-heading"><span className="section-overline">GOOD TO KNOW</span><h2 id="faq-title">Frequently asked<br/><em>questions.</em></h2></div><div className="faq-list">{faq.map(({ q, a }, i) => <div className="faq-item" key={q}><button type="button" aria-controls={`answer-${i}`} aria-expanded={openFAQ === i} onClick={() => setOpenFAQ(openFAQ === i ? null : i)}><span>{q}</span><ChevronDown size={20} className={openFAQ === i ? "rotate" : ""}/></button><div id={`answer-${i}`} className="faq-answer" hidden={openFAQ !== i}><p>{a}</p></div></div>)}</div></section>
 
-        <section className="closing-section content-width" aria-labelledby="closing-title" data-reveal><span className="closing-orb" aria-hidden="true"/><span className="section-overline">YOUR NEXT MOVE STARTS HERE</span><h2 id="closing-title">See your website<br/>with fresh eyes.</h2><p>Two URLs. One clear starting point.</p><button type="button" className="closing-button" onClick={() => focusForm()}>Start Free Battle <ArrowUpRight size={20}/></button><small>No account required · Free preview · $29 one-time full report</small></section>
+        <section className="closing-section content-width" aria-labelledby="closing-title" data-reveal><span className="closing-orb" aria-hidden="true"/><span className="section-overline">YOUR NEXT MOVE STARTS HERE</span><h2 id="closing-title">See your website<br/>with fresh eyes.</h2><p>Two URLs. One clear starting point.</p><button type="button" className="closing-button" onClick={() => focusForm()}>Start Free Battle <ArrowUpRight size={20}/></button><small>No account required · Free preview · $19 one-time full report</small></section>
       </main>
-      <footer className="site-footer"><div className="footer-inner content-width"><a href="#top" aria-label="vsyde back to top"><Brand compact/></a><nav aria-label="Footer links"><Link href="/methodology">Methodology</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/refund-policy">Refund policy</Link><Link href="/contact">Contact</Link></nav></div><p className="footer-note content-width">© {new Date().getFullYear()} vsyde · Frontend preview only. Live scanning and checkout are not active yet.</p></footer>
+      <footer className="site-footer"><div className="footer-inner content-width"><a href="#top" aria-label="vsyde back to top"><Brand compact/></a><nav aria-label="Footer links"><Link href="/methodology">Methodology</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/refund-policy">Refund policy</Link><Link href="/contact">Contact</Link></nav></div><p className="footer-note content-width">© {new Date().getFullYear()} vsyde · Business inquiries: <a href="mailto:hello.skyorigin@gmail.com">hello.skyorigin@gmail.com</a></p></footer>
     </div>
   );
 }

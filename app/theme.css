@@ -159,3 +159,8 @@ html[data-theme="dark"] .info-footer a:hover { color: #9ac1ff; }
 @media (prefers-reduced-motion: reduce) {
   .theme-switch-track, .theme-switch-track > span, .theme-icon-button { transition: none !important; }
 }
+
+/* Business contact: distinguish the footer mail link without adding extra visual noise. */
+.footer-note a { text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 3px; }
+.footer-note a:hover { color: #125ee5; }
+html[data-theme="dark"] .footer-note a:hover { color: #a9cbff; }

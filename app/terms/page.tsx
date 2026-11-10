@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/InfoPage";
-export const metadata: Metadata = { title: "Terms of use | vsyde", description: "Current preview scope and intended comparison terms." };
+export const metadata: Metadata = { title: "Terms of use | vsyde", description: "Terms and conditions for the vsyde website." };
 export default function Page() {
-  return <InfoPage eyebrow="Information · Pre-launch" title="Terms of use" intro="The current preview is a look at vsyde’s planned comparison experience—not a live paid service." notice="These are pre-launch terms for an informational frontend. The final legal terms, merchant details, governing law and paid-service conditions require review before the live service opens." sections={[
-    {heading:"Current experience", content:"This website currently provides a demonstration interface with form-format validation and illustrative sample results. There is no active website-scanning engine, AI report generation, checkout, account system or report delivery."},
-    {heading:"How comparisons are intended to work", content:"vsyde is designed to compare two publicly accessible websites using the same buyer-experience criteria. Scores and verdicts will be directional assessments of visible information, not measurements of actual conversion rates, market preference or business success."},
-    {heading:"Permitted scope", content:"The planned tool will inspect public website pages. It is not intended to log into third-party accounts, bypass paywalls, access protected data, or carry out disruptive actions on other websites."},
-    {heading:"Results and limitations", content:"A site may block automated inspection, require authentication or use dynamic pages that cannot be evaluated fairly. Such cases should be shown as limited or inconclusive rather than automatically marking one site as the winner."},
-    {heading:"Planned purchases", content:"The product blueprint proposes a $29 USD one-time payment per completed full battle. No charge is possible through this frontend preview. Final purchase, report access, refund and support terms must be displayed before a production checkout is enabled."},
-    {heading:"Intellectual property and third-party pages", content:"Website screenshots and excerpts are intended solely as contextual evidence in permitted comparisons. Their content belongs to the relevant owners; vsyde does not endorse or represent those third-party websites."},
+  return <InfoPage eyebrow="Terms" title="Terms of use" intro="Information about the current vsyde website and how the planned comparison service will operate." notice="Automated reports and payments are not yet offered. Final operator details, purchase terms and applicable legal conditions must be confirmed before checkout becomes available." sections={[
+    {heading:"Current website",content:"The form currently checks the format of two website addresses. It does not start automated analysis, deliver paid reports or process payments. The report preview contains sample data."},
+    {heading:"Comparison principles",content:"The intended service compares two public websites using the same buyer-experience criteria. Ratings are directional evaluations of visible information, not measurements of real conversion rates, traffic or business success."},
+    {heading:"Permitted use",content:"Analysis will be limited to publicly accessible information. The service is not intended to bypass sign-ins, paywalls, access controls or interfere with other sites."},
+    {heading:"Availability and limitations",content:"A website may block scanning or contain information that cannot be checked reliably. In that case, a report should disclose coverage limitations and may be inconclusive."},
+    {heading:"Pricing and purchases",content:"A full battle report is listed at $19 USD per completed comparison, as a one-time purchase without a subscription. Checkout is not available yet; final delivery, purchase and refund terms will be shared before any payment is accepted."},
+    {heading:"Third-party content",content:"Any website images or excerpts used as evidence remain the property of their respective owners. vsyde does not represent or endorse those third-party businesses."},
+    {heading:"Contact",content:<p>Business or terms-related questions: <a href="mailto:hello.skyorigin@gmail.com">hello.skyorigin@gmail.com</a>.</p>},
   ]}/>;
 }

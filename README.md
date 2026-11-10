@@ -28,7 +28,7 @@ GitHub Actions runs unit tests, type checking, production build and browser view
 - Sticky floating navigation and responsive mobile menu
 - Centered dual-URL form, independent field validation, accessible errors and honest preview message
 - Interactive fictional sample report: Overview / Evidence / Fix plan, with keyboard arrow tabs
-- A consistent five-factor scoring rubric, evidence policy, clear three-step process and honest free/$29 pricing
+- A consistent five-factor scoring rubric, evidence policy, clear three-step process and honest free/$19 pricing
 - Readable mobile layouts, content-first scroll reveals, native system font stack, reduced-motion behavior
 - FAQ, footer, legal/information routes and public frontend-feedback issue template
 - SEO metadata, automatically generated OpenGraph card, configurable robots/sitemap with `NEXT_PUBLIC_SITE_URL`

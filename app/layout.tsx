@@ -16,7 +16,7 @@ const siteURL = getSiteURL();
 export const metadata: Metadata = {
   ...(siteURL ? { metadataBase: siteURL, alternates: { canonical: "/" } } : {}),
   title: { default: "vsyde — Your website. Their website. Who wins?", template: "%s | vsyde" },
-  description: "Compare two websites from a buyer's perspective. Understand the difference, see the evidence, and discover what to improve. Free preview and $29 one-time full report planned.",
+  description: "Compare two websites from a buyer's perspective. Understand the difference, see the evidence, and discover what to improve. Free preview and $19 one-time full report planned.",
   applicationName: "vsyde",
   openGraph: {
     title: "vsyde — Your website. Their website. Who wins?",

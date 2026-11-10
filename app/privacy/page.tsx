@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import InfoPage from "@/components/InfoPage";
-export const metadata: Metadata = { title: "Privacy | vsyde", description: "Pre-launch privacy information for the vsyde comparison preview." };
+export const metadata: Metadata = { title: "Privacy | vsyde", description: "Privacy information for vsyde visitors." };
 export default function Page() {
-  return <InfoPage eyebrow="Information · Pre-launch" title="Privacy & data" intro="A clear explanation of what the current vsyde experience does with the details you type into it." notice="This page describes the current frontend preview and the intended product design. Data processing terms, retention periods, operator details, and privacy contacts must be confirmed and updated before live scans or payments begin." sections={[
-    {heading:"What happens today", content:"The current landing page validates the format of the two website addresses inside your browser. Submitting the form does not trigger a vsyde scan, upload the entered URLs to a vsyde analysis API, create a report, or initiate payment."},
-    {heading:"Basic website requests", content:"Your browser and hosting provider may process standard technical requests needed to deliver the site, such as IP addresses and request metadata. The exact infrastructure and logging setup will be documented after the live hosting configuration is confirmed."},
-    {heading:"When website scanning launches", content:"The planned scanner will visit public pages, collect only the evidence needed for a comparison, and may store screenshots, extracted page information, and report-access records. The live privacy policy must explain retention, deletion, providers and any transfers before this functionality is enabled."},
-    {heading:"Accounts, reports and sharing", content:"The planned product will not require an account. Full reports are intended to be opened with secure private links; anyone holding a report link may be able to access that report. The frontend preview does not create report links."},
-    {heading:"Cookies and analytics", content:"This page does not assume a specific tracking, analytics or cookie system has been installed. Any such services must be documented based on the actual production configuration."},
-    {heading:"Requests and questions", content:"A verified privacy and support channel will be added here before live personal-data collection starts. Until then, this is a frontend preview rather than a functioning scanning service."},
+  return <InfoPage eyebrow="Privacy" title="Privacy & data" intro="How vsyde handles information when you visit the website and use the comparison form." notice="This page describes current site behavior. Retention schedules, processors and data-handling terms for future automated scans and checkout must be confirmed before those features launch." sections={[
+    {heading:"Website addresses",content:"The current comparison form checks website address formats in your browser. It does not submit URLs to a vsyde analysis API, begin a scan or create a report."},
+    {heading:"Technical website requests",content:"As with other hosted websites, your browser and hosting infrastructure may exchange IP addresses and technical request information to deliver the site. Logging and retention depend on the final hosting configuration."},
+    {heading:"Planned comparison reports",content:"If scanning launches, the service may process publicly accessible pages, screenshots, excerpts, scan metadata and report access records. Before collection begins, this policy will specify providers, retention, deletion and relevant sharing practices."},
+    {heading:"Report access",content:"The planned account-free model uses private report links. Anyone with a report link may be able to open the associated report. No private report links are generated at present."},
+    {heading:"Cookies and analytics",content:"Any analytics or optional tracking services used in the live website must be described here according to the actual production configuration."},
+    {heading:"Privacy questions",content:<p>For privacy questions or requests, email <a href="mailto:hello.skyorigin@gmail.com">hello.skyorigin@gmail.com</a>. Do not include passwords or sensitive personal information.</p>},
   ]}/>;
 }

@@ -8,6 +8,6 @@ export default function Page() {
     {heading:"Evidence, confidence and coverage", content:"A supported finding should reference a captured page, visible excerpt or tested public action. Report confidence and coverage need to be distinguished from the website score. Blocked or unavailable material should be labeled honestly."},
     {heading:"Possible outcomes", content:"The intended verdicts are Your Site Wins, Competitor Wins, Close Match and Inconclusive. A missing or blocked page does not automatically count as a loss."},
     {heading:"What a website scan cannot establish", content:"A public website analysis cannot infer real conversion rates, purchase behavior, traffic numbers, SEO ranking or actual user preferences. Improvements are proposed website changes, not guaranteed sales outcomes."},
-    {heading:"Current implementation status", content:"All sample scores shown on the landing page are illustrative. The browser scanner, AI analysis, hosted checkout and report delivery are not yet connected to this frontend."},
+    {heading:"Current implementation status", content:"The report preview contains sample data and does not represent an actual website comparison. Automated scans, AI analysis, checkout and delivery have not launched."},
   ]}/>;
 }

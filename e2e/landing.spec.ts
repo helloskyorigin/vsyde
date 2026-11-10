@@ -28,7 +28,7 @@ test("independent URL validation, same-domain prevention and honest notice", asy
   await expect(other).toHaveAttribute("aria-invalid", "true");
   await other.fill("competitor.org");
   await submit.click();
-  await expect(page.getByRole("status")).toContainText("does not run a scan yet");
+  await expect(page.getByRole("status")).toContainText("Website scanning is not available yet");
 });
 
 test("sample report tabs and FAQ are keyboard accessible", async ({ page }) => {
@@ -99,4 +99,18 @@ test("theme persists on legal pages and can be restored", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
+
+test("public pricing and contact details stay consistent", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".price-card--featured .price-amount")).toContainText("$19");
+  await expect(page.locator(".site-footer a[href='mailto:hello.skyorigin@gmail.com']")).toBeVisible();
+  await expect(page.locator(".sample-chip")).toContainText("Not a live scan");
+  await expect(page.locator(".site-footer")).not.toContainText("Frontend preview only");
+  for (const path of ["contact", "privacy", "terms", "refund-policy", "methodology"]) {
+    await page.goto(`/${path}`);
+    await expect(page.locator("main")).not.toContainText("$29");
+  }
+  await page.goto("/contact");
+  await expect(page.getByRole("link", { name: "hello.skyorigin@gmail.com" }).first()).toHaveAttribute("href", /mailto:hello\.skyorigin@gmail\.com/);
 });
