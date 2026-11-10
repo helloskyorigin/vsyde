@@ -20,7 +20,7 @@ export default function InfoPage({ title, eyebrow, intro, sections, notice }: {
   return (
     <div className="info-page">
       <header className="info-nav">
-        <Link href="/" aria-label="vsyde home" className="brand"><img src="/favicon.svg" width="35" height="35" alt=""/>vsyde</Link>
+        <Link href="/" aria-label="vsyde home" className="brand"><img src="/icon.png" width="35" height="35" alt=""/>vsyde</Link>
         <Link className="info-home" href="/">Back to home <span aria-hidden="true">↗</span></Link>
       </header>
       <main id="main-content" className="info-content">

@@ -41,7 +41,7 @@ h1, h2, h3 { color: #101626; }
 .site-header--scrolled .nav-wrap { height: 61px; background: rgba(255,255,255,.96); box-shadow: 0 14px 38px rgba(32, 68, 131, .115); }
 .brand-link, .brand { display: inline-flex; align-items: center; }
 .brand { gap: 8px; white-space: nowrap; font-size: 25px; line-height: 1; letter-spacing: -.065em; font-weight: 790; text-transform: lowercase; }
-.brand img { display: block; width: 35px; height: 35px; object-fit: contain; }
+.brand img { display: block; width: 35px; height: 35px; object-fit: contain; border-radius: 10px; background: #090a3c; box-shadow: 0 4px 13px rgba(28,19,117,.13); }
 .brand--compact { font-size: 21px; }
 .brand--compact img { width: 29px; height: 29px; }
 .desktop-nav { display: flex; gap: clamp(18px, 3vw, 42px); align-items: center; }

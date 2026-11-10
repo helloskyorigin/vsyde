@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title: "vsyde — Your website. Their website. Who wins?", description: "Compare two sites. See what works, what doesn't, and what to improve." },
   robots: { index: true, follow: true },
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/icon.png", apple: "/icon.png" },
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#fafbfe" };
 

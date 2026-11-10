@@ -33,7 +33,7 @@ const faq = [
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <span className={`brand ${compact ? "brand--compact" : ""}`}>
-      <img src="/favicon.svg" width={32} height={32} alt="" aria-hidden="true" />
+      <img src="/icon.png" width={32} height={32} alt="" aria-hidden="true" />
       <span>vsyde</span>
     </span>
   );
