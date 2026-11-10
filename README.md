@@ -47,3 +47,9 @@ Set `NEXT_PUBLIC_SITE_URL` to the canonical production origin (e.g. your real cu
 ## Battle Room (screenshot preview)
 
 The landing form now navigates to `/battle?own=...&competitor=...`. Battle Room validates both public URLs and requests live public-page screenshots through `/api/battle/preview`, proxied from Thum.io. Failed captures show retry and an open-site link; no mock scoring or simulated processing percentages. The 5-stage list is deliberately limited to screenshot capture until actual server-driven comparison jobs exist. URLs are sent to the screenshot provider, as described in Privacy. Throttle and abuse controls should be implemented before high traffic. The screenshot provider is an external dependency and public websites may block captures.
+
+## Free Results and public signal checks
+
+A lightweight real-content inspection uses Jina Reader for publicly visible homepage text, with a four-signal rule-based summary and source snippets. These are observed text signals—not LLM-generated analysis, conversion predictions or a verified website-quality score. If evidence is incomplete, results remain partial/inconclusive. Battle Room adds fullscreen screenshot zoom, mobile A/B selection, original URL restoration when editing, and a linked free results screen. The free report is held in browser sessionStorage and refreshed if missing. The $19 full-report CTA opens a business email because paid checkout is not live.
+
+API routes limit supplied URL length, reject private and nonpublic DNS answers, and use fixed third-party providers. A per-instance request limiter reduces casual misuse, but **production-scale distributed throttling/WAF rules remain necessary**. Third-party rate limits and blocked sites can cause incomplete results.

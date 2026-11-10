@@ -120,6 +120,15 @@ test("battle room handles captures and shows real domains", async ({ page }) => 
   await page.route("**/api/battle/preview?**", async route => {
     await route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ error: "Website preview temporarily unavailable." }) });
   });
+  await page.route("**/api/battle/inspect?**", async route => route.fulfill({
+    status: 200, contentType: "application/json",
+    body: JSON.stringify({
+      status: "unavailable", summary: "Public content could not be inspected.", leader: null,
+      methodology: "Observable page-text signals.", createdAt: new Date().toISOString(),
+      own: { url: "https://www.example.com/", domain: "www.example.com", title: "Site A", status: "unavailable", signals: [] },
+      competitor: { url: "https://example.org/", domain: "example.org", title: "Site B", status: "unavailable", signals: [] },
+    }),
+  }));
   await page.goto("/");
   await page.locator("#own-url").fill("https://www.example.com");
   await page.locator("#competitor-url").fill("https://example.org");
@@ -131,7 +140,7 @@ test("battle room handles captures and shows real domains", async ({ page }) => 
   await expect(page.locator(".battle-site--two")).toContainText("example.org");
   await expect(page.locator(".battle-viewport-error")).toHaveCount(2);
   await expect(page.locator(".battle-viewport-error").first()).toContainText("Website preview temporarily unavailable.");
-  await expect(page.locator(".battle-stage--current")).toContainText("Limited");
+  await expect(page.locator(".battle-stage--limited").first()).toContainText("Limited");
   await expect(page.getByRole("link", { name: "Open www.example.com in a new tab" })).toHaveAttribute("href", "https://www.example.com/");
 });
 
@@ -141,6 +150,14 @@ for (const width of [320, 375, 390, 768, 1024, 1440]) {
     await page.route("**/api/battle/preview?**", async route => {
       await route.fulfill({ status: 422, contentType: "application/json", body: JSON.stringify({ error: "Could not capture this page." }) });
     });
+    await page.route("**/api/battle/inspect?**", async route => route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({
+        status:"unavailable",createdAt:new Date().toISOString(),summary:"Inspection unavailable.",leader:null,methodology:"Only observable signals.",
+        own:{url:"https://example.com/",domain:"example.com",title:"Site A",status:"unavailable",signals:[]},
+        competitor:{url:"https://example.org/",domain:"example.org",title:"Site B",status:"unavailable",signals:[]},
+      }),
+    }));
     await page.goto("/battle?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
     await expect(page.locator(".battle-site")).toHaveCount(2);
     await expect(page.locator(".battle-viewport-error")).toHaveCount(2);
@@ -157,4 +174,67 @@ test("battle room rejects invalid or repeated domains", async ({ page }) => {
   await page.goto("/battle?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fwww.example.com");
   await expect(page.getByRole("heading", { name: "Two websites. One battle." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Choose websites" })).toBeVisible();
+});
+
+const signalKeys = ["headline", "action", "pricing", "trust"];
+function reportFixture() {
+  const signals = (domain: string, count: number) => signalKeys.map((key, index) => ({
+    key, label: key, observed: index < count, excerpt: index < count ? domain + " public information" : "",
+  }));
+  return {
+    status:"complete",createdAt:"2026-11-10T10:00:00.000Z",
+    summary:"example.com has more detectable on-page signals in this limited check.",
+    leader:"own",methodology:"Automated homepage text checks.",
+    own:{url:"https://example.com/",domain:"example.com",title:"Example Domain",status:"inspected",signals:signals("example.com",4)},
+    competitor:{url:"https://example.org/",domain:"example.org",title:"Example Org",status:"inspected",signals:signals("example.org",1)},
+  };
+}
+test("browser screenshots can zoom, mobile tabs switch, and free results open", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 830 });
+  await page.route("**/api/battle/preview?**", async route => route.fulfill({
+    status:200,contentType:"image/svg+xml",
+    body:'<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><rect width="900" height="1200" fill="#cfe3fe"/></svg>',
+  }));
+  await page.route("**/api/battle/inspect?**", async route => route.fulfill({
+    status:200,contentType:"application/json",body:JSON.stringify(reportFixture()),
+  }));
+  await page.goto("/battle?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
+  await expect(page.locator(".battle-site--one")).toBeVisible();
+  await expect(page.locator(".battle-site--two")).toBeHidden();
+  await page.getByRole("button", { name: "Competitor" }).click();
+  await expect(page.locator(".battle-site--one")).toBeHidden();
+  await expect(page.locator(".battle-site--two")).toBeVisible();
+  await page.getByRole("button", { name: "Your website" }).click();
+  await page.getByRole("button", { name: "Expand screenshot of example.com" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  await expect(page.getByRole("dialog")).toContainText("125%");
+  await page.getByRole("button", { name: "Close expanded screenshot" }).click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await page.getByRole("link", { name: "View Free Results" }).click();
+  await expect(page).toHaveURL(/\/results\?own=/);
+  await expect(page.getByRole("heading", { name: "What we could verify." })).toBeVisible();
+  await expect(page.locator(".results-site")).toHaveCount(2);
+  await expect(page.locator(".results-unlock")).toContainText("$19");
+  await page.getByRole("link", { name: "Change websites" }).click();
+  await expect(page.locator("#own-url")).toHaveValue("https://example.com/");
+  await expect(page.locator("#competitor-url")).toHaveValue("https://example.org/");
+});
+
+for (const width of [320, 390, 768, 1440]) {
+  test(`free results responsive at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 820 });
+    await page.route("**/api/battle/inspect?**", async route => route.fulfill({
+      status:200, contentType:"application/json",body:JSON.stringify(reportFixture()),
+    }));
+    await page.goto("/results?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
+    await expect(page.locator(".results-site")).toHaveCount(2);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+}
+test("invalid screenshot URLs are rejected before remote capture", async ({ request }) => {
+  const res = await request.get("/api/battle/preview?url=http%3A%2F%2F127.0.0.1");
+  expect(res.status()).toBe(400);
 });

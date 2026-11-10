@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./theme.css";
 import "./battle.css";
+import "./battle-extras.css";
 
 function getSiteURL(): URL | undefined {
   const provided = process.env.NEXT_PUBLIC_SITE_URL?.trim();

@@ -110,6 +110,14 @@ export default function LandingPage() {
   const errorId = useId();
 
   useEffect(() => {
+    const qs = new URLSearchParams(window.location.search);
+    const own = qs.get("own");
+    const other = qs.get("competitor");
+    if (own && normalizePublicURL(own)) setYourSite(own);
+    if (other && normalizePublicURL(other)) setCompetitor(other);
+  }, []);
+
+  useEffect(() => {
     const track = () => setScrolled(window.scrollY > 22);
     track();
     window.addEventListener("scroll", track, { passive: true });
