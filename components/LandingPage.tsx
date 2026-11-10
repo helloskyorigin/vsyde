@@ -223,7 +223,7 @@ export default function LandingPage() {
             <button type="submit" className="primary-button form-button">Start Free Battle <ArrowRight size={19} aria-hidden="true"/></button>
             <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $29 full report</p>
             {error && <p className="form-feedback form-feedback--error" id={errorId} role="alert">{error}</p>}
-            {notice && <p className="form-feedback form-feedback--notice" id={noticeId} role="status">{notice}</p>}
+            {notice && <p className="form-feedback form-feedback--notice" role="status">{notice}</p>}
           </form>
           <a className="hero-peek" href="#product">See what a report looks like <ArrowRight size={16} aria-hidden="true"/></a>
         </section>
