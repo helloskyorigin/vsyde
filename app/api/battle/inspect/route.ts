@@ -1,54 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validatePublicWebsite, allowRequest, requestIdentity } from "@/lib/battle-security";
 import { sameWebsite } from "@/lib/url-validation";
-import type { BattleInspection, InspectionSite, SignalKey, EvidenceSignal } from "@/lib/battle-types";
+import type { BattleInspection, InspectionSite } from "@/lib/battle-types";
+import { emptySignals, parseHomepage } from "@/lib/page-signal-parser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-const KEYS: { key: SignalKey; label: string }[] = [
-  { key: "headline", label: "Page headline" },
-  { key: "action", label: "Action link" },
-  { key: "pricing", label: "Pricing information" },
-  { key: "trust", label: "Trust or support information" },
-];
-
-function clean(line: string): string {
-  return line.replace(/!\[[^\]]*]\([^)]*\)/g, "")
-    .replace(/<[^>]+>/g, " ").replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-    .replace(/[#*_~|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 180);
-}
-function parseSignals(input: string): { title: string; signals: EvidenceSignal[] } {
-  const lines = input.split(/\r?\n/).map(v => v.trim()).filter(Boolean);
-  const title = clean(lines.find(v => /^Title:\s*/i.test(v))?.replace(/^Title:\s*/i, "") || "");
-  const contentLines = lines.filter(v => !/^(Title|URL Source|Markdown Content|Content type|Source):/i.test(v)).slice(0, 1800);
-  const headline = contentLines.find(v => /^#\s+\S/.test(v));
-  const links = contentLines.filter(v => /\[[^\]]{2,70}\]\(https?:\/\//i.test(v));
-  const action = links.find(v => /\b(get started|start free|sign up|try free|book a demo|request demo|contact sales|buy now|join now|start now|schedule a demo|request access|create account)\b/i.test(v));
-  const price = contentLines.find(v => /(?:[$€£]\s?\d{1,5}(?:[,.]\d{1,2})?\b|\b(?:usd|eur|gbp|inr)\s?\d{1,6}\b|\b(?:per month|\/month|\/year|starting at|pricing plans)\b)/i.test(v));
-  const trust = contentLines.find(v => /\b(testimonials?|customer stories|case studies|reviews?|trusted by|security|privacy policy|support center|contact us|help center)\b/i.test(v));
-  const chosen: Record<SignalKey,string|undefined> = { headline, action, pricing:price, trust };
-  return {
-    title: title || clean(headline || "") || "Public homepage",
-    signals: KEYS.map(({ key, label }) => ({
-      key, label, observed: Boolean(chosen[key]),
-      excerpt: chosen[key] ? clean(chosen[key]!) : "",
-    })),
-  };
-}
-
 async function readSite(url: URL): Promise<InspectionSite> {
   const base: InspectionSite = {
     url: url.href, domain: url.hostname, title: "Public homepage",
-    status: "unavailable", signals: KEYS.map(({ key, label }) => ({ key, label, observed: false, excerpt: "" })),
+    status: "unavailable", signals: emptySignals(),
   };
   try {
     // The server contacts this fixed external reader endpoint, not the user-supplied site.
     const requestURL = "https://r.jina.ai/" + url.href;
     const response = await fetch(requestURL, {
       redirect: "error", cache: "no-store", signal: AbortSignal.timeout(19000),
-      headers: { Accept: "text/plain", "X-Respond-With": "markdown" },
+      headers: { Accept: "text/plain", "X-Respond-With": "markdown", "X-Cache-Tolerance": "300" },
     });
     if (!response.ok || !response.body) {
       return { ...base, note: response.status === 429 ? "Page reading is temporarily rate limited." : "Public page text was not accessible." };
@@ -66,8 +36,8 @@ async function readSite(url: URL): Promise<InspectionSite> {
     } finally { await reader.cancel().catch(() => {}); }
     const decoder = new TextDecoder();
     const markdown = chunks.map(chunk => decoder.decode(chunk, { stream: true })).join("") + decoder.decode();
-    if (markdown.trim().length < 65) return { ...base, note: "Not enough public page content was available." };
-    const parsed = parseSignals(markdown);
+    const parsed = parseHomepage(markdown);
+    if (!parsed.usable) return { ...base, note: "Not enough public page content was available." };
     return { ...base, status: "inspected", title: parsed.title, signals: parsed.signals, inspectedAt: new Date().toISOString() };
   } catch {
     return { ...base, note: "The website content could not be inspected at this time." };

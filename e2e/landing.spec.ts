@@ -211,11 +211,13 @@ test("browser screenshots can zoom, mobile tabs switch, and free results open", 
   await expect(page.getByRole("dialog")).toContainText("125%");
   await page.getByRole("button", { name: "Close expanded screenshot" }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
-  await page.getByRole("link", { name: "View Free Results" }).click();
+  await page.getByRole("link", { name: "View Battle Report" }).click();
   await expect(page).toHaveURL(/\/results\?own=/);
-  await expect(page.getByRole("heading", { name: "What we could verify." })).toBeVisible();
-  await expect(page.locator(".results-site")).toHaveCount(2);
-  await expect(page.locator(".results-unlock")).toContainText("$19");
+  await expect(page.getByRole("heading", { name: "Battle Report." })).toBeVisible();
+  await expect(page.locator(".br-factor")).toHaveCount(5);
+  await expect(page.locator(".br-finding")).toHaveCount(3);
+  await expect(page.locator(".br-fix")).toHaveCount(3);
+  await expect(page.locator(".br-main")).not.toContainText("$19");
   await page.getByRole("link", { name: "Change websites" }).click();
   await expect(page.locator("#own-url")).toHaveValue("https://example.com/");
   await expect(page.locator("#competitor-url")).toHaveValue("https://example.org/");
@@ -228,7 +230,8 @@ for (const width of [320, 390, 768, 1440]) {
       status:200, contentType:"application/json",body:JSON.stringify(reportFixture()),
     }));
     await page.goto("/results?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
-    await expect(page.locator(".results-site")).toHaveCount(2);
+    await expect(page.locator(".br-factor")).toHaveCount(5);
+    await expect(page.locator(".br-fix")).toHaveCount(3);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.getByRole("button", { name: "Switch to dark mode" }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -237,4 +240,20 @@ for (const width of [320, 390, 768, 1440]) {
 test("invalid screenshot URLs are rejected before remote capture", async ({ request }) => {
   const res = await request.get("/api/battle/preview?url=http%3A%2F%2F127.0.0.1");
   expect(res.status()).toBe(400);
+});
+
+test("incomplete website scan renders a clear inconclusive report", async ({ page }) => {
+  await page.route("**/api/battle/inspect?**", async route => route.fulfill({
+    status:200,contentType:"application/json",
+    body:JSON.stringify({
+      status:"partial", createdAt:new Date().toISOString(),summary:"Only one site was readable.",leader:null,methodology:"Homepage text checks.",
+      own:{url:"https://example.com/",domain:"example.com",title:"Public homepage",status:"unavailable",signals:[],note:"Capture blocked."},
+      competitor:{url:"https://example.org/",domain:"example.org",title:"Example",status:"inspected",signals:[{key:"headline",label:"Page headline",observed:true,excerpt:"Example headline"}]}
+    })
+  }));
+  await page.goto("/results?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
+  await expect(page.locator("#br-verdict-title")).toContainText("Limited comparison");
+  await expect(page.locator(".br-factor")).toHaveCount(5);
+  await expect(page.locator(".br-fix")).toHaveCount(0);
+  await expect(page.locator(".br-empty")).toContainText("Inspect your site");
 });

@@ -3,118 +3,186 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
-import type { BattleInspection, InspectionSite } from "@/lib/battle-types";
+import { buildReportModel, type Detection } from "@/lib/report-model";
+import type { BattleInspection } from "@/lib/battle-types";
 import {
-  ArrowLeft, ArrowRight, ArrowUpRight, Check, CircleAlert,
-  ClipboardCheck, ExternalLink, LoaderCircle, Mail, RefreshCw, ShieldCheck,
+  ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, ChevronRight,
+  CircleAlert, ClipboardList, ExternalLink, LoaderCircle, RefreshCw,
+  ScanSearch, ShieldCheck, Sparkles, Target, Zap,
 } from "lucide-react";
 
-function SiteEvidence({ site, own }: { site: InspectionSite; own: boolean }) {
-  const count = site.signals.filter(s => s.observed).length;
-  return <article className={"results-site " + (own ? "results-site--own" : "")}>
-    <div className="results-site-head">
-      <span className="results-site-role">{own ? "YOUR WEBSITE" : "COMPETITOR"}</span>
-      <span className={"results-count " + (site.status === "inspected" ? "" : "results-count--limited")}>
-        {site.status === "inspected" ? count + "/4 visible signals" : "Limited"}
-      </span>
-    </div>
-    <h2>{site.domain}</h2>
-    <p className="results-site-title">{site.title}</p>
-    {site.status === "inspected" ? <div className="results-evidence">
-      {site.signals.map(signal => <div className="results-signal" key={signal.key}>
-        <span className={"results-observed " + (signal.observed ? "yes" : "no")}>{signal.observed ? <Check size={16} aria-hidden="true"/> : <CircleAlert size={16} aria-hidden="true"/>}</span>
-        <div><strong>{signal.label}</strong><small>{signal.observed ? signal.excerpt : "Not identified in the available page text"}</small></div>
-      </div>)}
-    </div> : <p className="results-limited">{site.note || "Public website content could not be inspected reliably."}</p>}
-    <a href={site.url} target="_blank" rel="noopener noreferrer" className="results-source">View source website <ExternalLink size={15}/></a>
-  </article>;
+function DetectionTag({ status }: { status: Detection }) {
+  const label = status === "found" ? "Detected" : status === "unconfirmed" ? "Not found" : status === "unavailable" ? "Unavailable" : "Not tested";
+  return <span className={"br-detection br-detection--" + status}>
+    {status === "found" ? <Check size={14} aria-hidden="true"/> : status === "unavailable" ? <CircleAlert size={14} aria-hidden="true"/> : null}
+    {label}
+  </span>;
 }
 
 export default function ResultsView({ ownSite, competitorSite }: { ownSite: string; competitorSite: string }) {
   const params = new URLSearchParams({ own: ownSite, competitor: competitorSite });
   const battleURL = "/battle?" + params.toString();
   const editURL = "/?" + params.toString() + "#compare";
-  const key = "vsyde:report:" + params.toString();
-  const [data, setData] = useState<BattleInspection | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [message, setMessage] = useState("");
-  const [attempt, setAttempt] = useState(0);
+  const storageKey = "vsyde:report:" + params.toString();
+  const [report, setReport] = useState<BattleInspection | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
-    setState("loading");
-    try {
-      const saved = sessionStorage.getItem(key);
-      if (saved && attempt === 0) {
-        const report = JSON.parse(saved) as BattleInspection;
-        if (report.own?.url === ownSite && report.competitor?.url === competitorSite && report.createdAt) {
-          setData(report);
-          setState("ready");
-          return () => controller.abort();
+    setStatus("loading");
+    setError("");
+    if (retry === 0) {
+      try {
+        const cached = sessionStorage.getItem(storageKey);
+        if (cached) {
+          const data = JSON.parse(cached) as BattleInspection;
+          const fresh = Date.now() - new Date(data.createdAt).getTime() < 10 * 60 * 1000;
+          if (fresh && data.own?.url === ownSite && data.competitor?.url === competitorSite && Array.isArray(data.own.signals) && Array.isArray(data.competitor.signals)) {
+            setReport(data);
+            setStatus("ready");
+            return () => controller.abort();
+          }
         }
-      }
-    } catch { /* session storage may be disabled */ }
-    fetch("/api/battle/inspect?" + params.toString(), { cache: "no-store", signal: controller.signal })
+      } catch { /* browser storage can be disabled */ }
+    }
+    const query = new URLSearchParams({ own: ownSite, competitor: competitorSite });
+    fetch("/api/battle/inspect?" + query.toString(), { signal: controller.signal, cache: "no-store" })
       .then(async response => {
         if (!response.ok) {
-          const body = await response.json().catch(() => null);
-          throw new Error(body?.error || "The comparison could not be loaded.");
+          const body: { error?: string } | null = await response.json().catch(() => null);
+          throw new Error(body?.error || "Could not load the comparison.");
         }
         return response.json() as Promise<BattleInspection>;
       })
-      .then(report => {
+      .then(data => {
         if (controller.signal.aborted) return;
-        setData(report);
-        setState("ready");
-        try { sessionStorage.setItem(key, JSON.stringify(report)); } catch { /* storage optional */ }
+        setReport(data);
+        setStatus("ready");
+        try { sessionStorage.setItem(storageKey, JSON.stringify(data)); } catch { /* optional */ }
       })
-      .catch(error => {
+      .catch(reason => {
         if (controller.signal.aborted) return;
-        setState("error");
-        setMessage(error instanceof Error ? error.message : "The report could not be loaded.");
+        setReport(null);
+        setError(reason instanceof Error ? reason.message : "Could not inspect the websites.");
+        setStatus("failed");
       });
     return () => controller.abort();
-  }, [ownSite, competitorSite, key, attempt]);
+  }, [ownSite, competitorSite, storageKey, retry]);
 
-  return <div className="battle-page results-page">
+  const model = report ? buildReportModel(report) : null;
+  const dateText = report ? new Date(report.createdAt).toLocaleString("en-US", { dateStyle:"medium", timeStyle:"short" }) : "";
+  return <div className="battle-page br-page">
     <header className="battle-header">
       <div className="battle-nav battle-width">
-        <Link href="/" className="battle-brand" aria-label="vsyde homepage"><img src="/icon.png" width={35} height={35} alt=""/><strong>vsyde</strong></Link>
-        <div className="battle-nav-right"><span className="battle-nav-tag">Free Results</span><ThemeToggle variant="icon"/><Link href={battleURL} className="battle-back"><ArrowLeft size={18}/><span>Battle Room</span></Link></div>
+        <Link href="/" className="battle-brand" aria-label="vsyde homepage">
+          <img src="/icon.png" width={35} height={35} alt=""/><strong>vsyde</strong>
+        </Link>
+        <div className="battle-nav-right">
+          <span className="battle-nav-tag">Battle Report</span>
+          <ThemeToggle variant="icon"/>
+          <Link href={battleURL} className="battle-back" aria-label="Back to Battle Room">
+            <ArrowLeft size={18}/><span>Battle Room</span>
+          </Link>
+        </div>
       </div>
     </header>
-    <main className="results-main battle-width">
-      <div className="results-heading">
-        <span className="battle-kicker"><ClipboardCheck size={16}/> THE FREE PREVIEW</span>
-        <h1>Your comparison, <em>clearly explained.</em></h1>
-        <p>A first look at observable information from your two public websites.</p>
+    <main className="br-main battle-width">
+      <div className="br-head">
+        <div>
+          <span className="battle-kicker"><ScanSearch size={16}/> WEBSITE COMPARISON</span>
+          <h1>Battle Report<span>.</span></h1>
+          <p>What we found, what it means, and what you can improve.</p>
+        </div>
+        <Link href={editURL} className="br-edit"><ArrowLeft size={16}/> Edit websites</Link>
       </div>
-      {state === "loading" && <div className="results-loading" role="status"><LoaderCircle className="battle-spin" size={25}/> Checking page evidence…</div>}
-      {state === "error" && <div className="results-loading" role="alert">
-        <p>{message}</p><button type="button" className="battle-result-button" onClick={() => setAttempt(a => a + 1)}><RefreshCw size={17}/> Retry inspection</button>
+      {status === "loading" && <div className="br-loading" role="status">
+        <LoaderCircle size={27} className="battle-spin"/>
+        <strong>Checking both websites</strong>
+        <span>Collecting public homepage evidence…</span>
       </div>}
-      {state === "ready" && data && <>
-        <section className="results-summary">
-          <div>
-            <span className="results-overline">PRELIMINARY OBSERVATION</span>
-            <h2>{data.status === "complete" ? "What we could verify." : "Some evidence is unavailable."}</h2>
-            <p>{data.summary}</p>
+      {status === "failed" && <div className="br-loading" role="alert">
+        <CircleAlert size={28}/>
+        <strong>Couldn't load this comparison</strong>
+        <span>{error}</span>
+        <button type="button" className="br-primary" onClick={() => setRetry(n => n + 1)}><RefreshCw size={17}/> Try again</button>
+      </div>}
+      {status === "ready" && report && model && <>
+        <section className="br-verdict" aria-labelledby="br-verdict-title">
+          <div className="br-verdict-body">
+            <div className="br-verdict-kicker"><Sparkles size={16}/> 01 / THE VERDICT</div>
+            <h2 id="br-verdict-title">{model.verdict}</h2>
+            <p>{model.explanation}</p>
+            <div className="br-verdict-meta">
+              <span><CheckCircle2 size={15}/> {report.status === "complete" ? "Both homepages inspected" : report.status === "partial" ? "Partial evidence" : "Insufficient evidence"}</span>
+              <span>Checked {dateText}</span>
+            </div>
           </div>
-          <span className={"results-coverage " + (data.status !== "complete" ? "is-limited" : "")}>
-            {data.status === "complete" ? "Both pages inspected" : data.status === "partial" ? "Partial coverage" : "Inconclusive"}
-          </span>
+          <div className="br-versus" aria-label="Compared website domains">
+            <div><span>YOUR SITE</span><strong>{report.own.domain}</strong></div>
+            <span className="br-versus-circle">VS</span>
+            <div><span>COMPETITOR</span><strong>{report.competitor.domain}</strong></div>
+          </div>
         </section>
-        <section className="results-compare" aria-label="Website evidence comparison">
-          <SiteEvidence site={data.own} own/>
-          <SiteEvidence site={data.competitor} own={false}/>
+
+        <section className="br-section" aria-labelledby="br-scorecard">
+          <div className="br-section-heading">
+            <div><span className="br-section-index">02 / SCORECARD</span><h2 id="br-scorecard">Five-factor comparison</h2></div>
+            <span className="br-section-context">Visible homepage signals</span>
+          </div>
+          <div className="br-scorecard">
+            <div className="br-scorecard-head">
+              <span>WHAT WE CHECK</span>
+              <span>YOUR WEBSITE</span>
+              <span>COMPETITOR</span>
+            </div>
+            {model.factors.map(factor => <div className="br-factor" key={factor.key}>
+              <div className="br-factor-title"><strong>{factor.label}</strong><small>{factor.weight} weight</small></div>
+              <div className="br-factor-site"><span className="br-mobile-label">YOUR WEBSITE</span><DetectionTag status={factor.own}/></div>
+              <div className="br-factor-site"><span className="br-mobile-label">COMPETITOR</span><DetectionTag status={factor.competitor}/></div>
+            </div>)}
+          </div>
+          <p className="br-caption">Detected means a matching signal appeared in the captured text—not a quality score. Buying friction requires deeper interaction testing.</p>
         </section>
-        <div className="results-method"><ShieldCheck size={20} aria-hidden="true"/><p>{data.methodology} A missing mention does not prove that information is absent from the website.</p></div>
-        <section className="results-unlock">
-          <div><span className="results-overline">DEEPER WEBSITE INTELLIGENCE</span><h2>Unlock the Full Battle.</h2><p>Detailed evidence, clearer priorities and practical improvement prompts. One-time price, no subscription.</p></div>
-          <div className="results-unlock-action"><strong>$19 <span>/ battle</span></strong><a className="battle-result-button" href={"mailto:hello.skyorigin@gmail.com?subject=" + encodeURIComponent("vsyde full report — " + data.own.domain + " vs " + data.competitor.domain)}>Ask about full reports <Mail size={17}/></a><small>Checkout will open when paid reports are ready.</small></div>
+
+        <section className="br-section" aria-labelledby="br-findings">
+          <div className="br-section-heading">
+            <div><span className="br-section-index">03 / EVIDENCE</span><h2 id="br-findings">Key findings</h2></div>
+            <span className="br-section-context">Up to 3 observations</span>
+          </div>
+          {model.findings.length > 0 ? <div className="br-findings">
+            {model.findings.map((item, i) => <article className="br-finding" key={i}>
+              <div className="br-finding-index">0{i + 1}</div>
+              <div className="br-finding-content">
+                <span className="br-finding-tag">{item.tag}</span>
+                <h3>{item.title}</h3><p>{item.body}</p>
+                <a href={item.source} target="_blank" rel="noopener noreferrer">View source <ExternalLink size={14}/></a>
+              </div>
+            </article>)}
+          </div> : <div className="br-empty"><CircleAlert size={22}/><strong>Not enough evidence yet</strong><p>Neither page returned reliable matching information. Try scanning again or review the sites directly.</p></div>}
         </section>
+
+        <section className="br-section" aria-labelledby="br-fixes">
+          <div className="br-section-heading">
+            <div><span className="br-section-index">04 / NEXT STEPS</span><h2 id="br-fixes">Top improvements</h2></div>
+            <span className="br-section-context">Focus on your website</span>
+          </div>
+          {model.fixes.length > 0 ? <div className="br-fixes">
+            {model.fixes.map(fix => <article className="br-fix" key={fix.priority}>
+              <span className="br-fix-number">{fix.priority}</span>
+              <div><h3>{fix.title}</h3><p>{fix.detail}</p></div>
+              <ChevronRight size={19} aria-hidden="true"/>
+            </article>)}
+          </div> : <div className="br-empty"><Target size={22}/><strong>Inspect your site to get improvements</strong><p>We couldn't read enough of your homepage to suggest evidence-based next steps.</p></div>}
+        </section>
+        <div className="br-actions">
+          <button type="button" className="br-primary" onClick={() => setRetry(n => n + 1)}><RefreshCw size={17}/> Scan again</button>
+          <Link href={battleURL} className="br-secondary">Review screenshots <ArrowUpRight size={17}/></Link>
+          <Link href={editURL} className="br-secondary">New comparison <ArrowRight size={17}/></Link>
+        </div>
+        <p className="br-footnote"><ShieldCheck size={17}/> Based on publicly captured homepage text. This is not a measure of actual customer behavior or conversion performance.</p>
       </>}
-      <div className="results-navigation"><Link href={editURL}><ArrowLeft size={17}/> Change websites</Link><Link href={battleURL}>Review screenshots <ArrowRight size={17}/></Link></div>
     </main>
     <footer className="battle-footer battle-width"><span>© {new Date().getFullYear()} vsyde</span><a href="mailto:hello.skyorigin@gmail.com">hello.skyorigin@gmail.com</a></footer>
   </div>;

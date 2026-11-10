@@ -238,7 +238,7 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
           <h2 id="battle-insights-title">Quick insights</h2>
           <p aria-live="polite">{readSummary}</p>
           {inspection && <div className="battle-insight-bar"><span className="battle-insight-bullet"/><span>{pageA?.domain}: {pageA?.signals.filter(s => s.observed).length} signals found · {pageB?.domain}: {pageB?.signals.filter(s => s.observed).length} signals found</span></div>}
-          {comparisonReady && <Link className="battle-result-button" href={reportURL}>View Free Results <ArrowRight size={18}/></Link>}
+          {comparisonReady && <Link className="battle-result-button" href={reportURL}>View Battle Report <ArrowRight size={18}/></Link>}
           {inspectionStatus === "failed" && <button className="battle-result-button" type="button" onClick={() => setAttempt(a => a + 1)}>Retry inspection <RefreshCw size={17}/></button>}
           <Link href={editURL} className="battle-new"><ArrowLeft size={17}/> Edit website addresses</Link>
         </aside>
