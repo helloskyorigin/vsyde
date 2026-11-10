@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 import type { ReactNode } from "react";
 
 type Section = { heading: string; content: ReactNode };
@@ -21,7 +22,7 @@ export default function InfoPage({ title, eyebrow, intro, sections, notice }: {
     <div className="info-page">
       <header className="info-nav">
         <Link href="/" aria-label="vsyde home" className="brand"><img src="/icon.png" width="35" height="35" alt=""/>vsyde</Link>
-        <Link className="info-home" href="/">Back to home <span aria-hidden="true">↗</span></Link>
+        <div className="info-actions"><ThemeToggle variant="icon"/><Link className="info-home" href="/">Back to home <span aria-hidden="true">↗</span></Link></div>
       </header>
       <main id="main-content" className="info-content">
         <span className="info-kicker">{eyebrow}</span>

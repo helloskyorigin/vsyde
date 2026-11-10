@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 import { normalizePublicURL, sameWebsite } from "@/lib/url-validation";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, CircleHelp, ClipboardCheck,
@@ -166,10 +167,11 @@ export default function LandingPage() {
         <div className="nav-wrap content-width">
           <a href="#top" className="brand-link" aria-label="vsyde home"><Brand /></a>
           <nav className="desktop-nav" aria-label="Primary navigation"><a href="#product">Product</a><a href="#how-it-works">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+          <div className="nav-actions"><ThemeToggle variant="icon"/>
           <button type="button" className="primary-button nav-cta" onClick={() => focusForm()}>Start Free Battle <ArrowUpRight size={16} aria-hidden="true"/></button>
-          <button type="button" className="menu-toggle" aria-controls="mobile-navigation" aria-expanded={menuOpen} aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={22}/> : <Menu size={22}/>}</button>
+          <button type="button" className="menu-toggle" aria-controls="mobile-navigation" aria-expanded={menuOpen} aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={22}/> : <Menu size={22}/>}</button></div>
         </div>
-        {menuOpen && <nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation"><a href="#product" onClick={() => setMenuOpen(false)}>Product</a><a href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</a><a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a><a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a><button type="button" className="primary-button" onClick={() => focusForm()}>Start Free Battle <ArrowRight size={18}/></button></nav>}
+        {menuOpen && <nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation"><a href="#product" onClick={() => setMenuOpen(false)}>Product</a><a href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</a><a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a><a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a><ThemeToggle variant="menu"/><button type="button" className="primary-button" onClick={() => focusForm()}>Start Free Battle <ArrowRight size={18}/></button></nav>}
       </header>
       <main>
         <section className="hero content-width" aria-labelledby="hero-heading">

@@ -64,3 +64,39 @@ for (const path of ["privacy", "terms", "refund-policy", "methodology", "contact
     await expect(page.locator(".info-nav").getByRole("link", { name: "vsyde home" })).toBeVisible();
   });
 }
+
+for (const width of [320, 360, 375, 390, 480, 700, 768, 900, 1024, 1440]) {
+  test(`theme switch and important text fit ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/");
+    const toggle = width <= 900
+      ? page.getByRole("button", { name: "Open navigation" })
+      : page.getByRole("button", { name: "Switch to dark mode" });
+    if (width <= 900) {
+      await toggle.click();
+      await page.getByRole("navigation", { name: "Mobile navigation" }).getByRole("button", { name: "Switch to dark mode" }).click();
+    } else await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+    const offscreen = await page.evaluate(() => [...document.querySelectorAll("h1, h2, h3, .comparison-form label, .report-tabs button, .price-name, .price-amount, .faq-item button")].filter(node => {
+      const el = node as HTMLElement;
+      if (el.closest("[hidden]")) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && (r.left < -2 || r.right > innerWidth + 2 || el.scrollWidth > el.clientWidth + 2);
+    }).slice(0, 8).map(el => ({ tag: el.tagName, text: el.textContent?.slice(0, 55) })));
+    expect(offscreen).toEqual([]);
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+}
+
+test("theme persists on legal pages and can be restored", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  await page.goto("/privacy");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Switch to light mode" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
