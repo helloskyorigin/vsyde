@@ -4,6 +4,7 @@ import "./theme.css";
 import "./battle.css";
 import "./battle-extras.css";
 import "./report-v1.css";
+import "./experience.css";
 
 function getSiteURL(): URL | undefined {
   const provided = process.env.NEXT_PUBLIC_SITE_URL?.trim();
