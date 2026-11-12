@@ -185,6 +185,11 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
   const comparisonReady = inspectionDone;
   const pageA: InspectionSite | undefined = inspection?.own;
   const pageB: InspectionSite | undefined = inspection?.competitor;
+  const observed = inspection ? [inspection.own,inspection.competitor].flatMap(site =>
+    site.status === "inspected" ? site.signals.filter(signal => signal.observed).slice(0, 2).map(signal => ({
+      domain:site.domain, label:signal.label, excerpt:signal.excerpt,
+    })) : []
+  ).slice(0, 3) : [];
   const readSummary = inspectionDone ? (inspection?.summary || "") : inspectionStatus === "failed" ? inspectionError : "Reading publicly visible page content.";
   const status = inspectionStatus === "failed" ? "Limited check" : comparisonReady ? "Evidence ready" : "Checking websites";
 
@@ -238,8 +243,12 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
           <h2 id="battle-insights-title">Quick insights</h2>
           <p aria-live="polite">{readSummary}</p>
           {inspection && <div className="battle-insight-bar"><span className="battle-insight-bullet"/><span>{pageA?.domain}: {pageA?.signals.filter(s => s.observed).length} signals found · {pageB?.domain}: {pageB?.signals.filter(s => s.observed).length} signals found</span></div>}
+          {observed.length > 0 && <div className="battle-observed" aria-label="Observed homepage signals">
+            {observed.map((item,index) => <div key={item.domain+item.label+index}><span>{item.domain} · {item.label}</span><strong>{item.excerpt}</strong></div>)}
+          </div>}
+          {inspection && <p className="battle-scope-note">Live screenshots and detected text are separate checks. Missing evidence is not proof of a weaker business.</p>}
           {comparisonReady && <Link className="battle-result-button" href={reportURL}>View Battle Report <ArrowRight size={18}/></Link>}
-          {inspectionStatus === "failed" && <button className="battle-result-button" type="button" onClick={() => setAttempt(a => a + 1)}>Retry inspection <RefreshCw size={17}/></button>}
+          {(inspectionStatus === "failed" || (inspectionDone && inspection?.status !== "complete")) && <button className="battle-retry-inspect" type="button" onClick={() => setAttempt(a => a + 1)}>Retry page reading <RefreshCw size={16}/></button>}
           <Link href={editURL} className="battle-new"><ArrowLeft size={17}/> Edit website addresses</Link>
         </aside>
       </div>

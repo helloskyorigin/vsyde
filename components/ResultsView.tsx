@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import { buildReportModel, type Detection } from "@/lib/report-model";
-import type { BattleInspection } from "@/lib/battle-types";
+import type { BattleInspection, InspectionSite, SignalKey } from "@/lib/battle-types";
 import {
   ArrowLeft, ArrowRight, ArrowUpRight, Check, CheckCircle2, ChevronRight,
   CircleAlert, ClipboardList, ExternalLink, LoaderCircle, RefreshCw,
-  ScanSearch, ShieldCheck, Sparkles, Target, Zap,
+  ScanSearch, ShieldCheck, Sparkles, Target, Zap, Eye, ImageOff, Globe2, LockKeyhole,
 } from "lucide-react";
 
 function DetectionTag({ status }: { status: Detection }) {
@@ -17,6 +17,40 @@ function DetectionTag({ status }: { status: Detection }) {
     {status === "found" ? <Check size={14} aria-hidden="true"/> : status === "unavailable" ? <CircleAlert size={14} aria-hidden="true"/> : null}
     {label}
   </span>;
+}
+
+function WebsiteSnapshot({ site, label }: { site: InspectionSite; label: string }) {
+  const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const matches = site.status === "inspected" ? site.signals.filter(signal => signal.observed).length : 0;
+  return <article className="br-snapshot">
+    <div className="br-snapshot-head">
+      <div><span className="br-snapshot-label">{label}</span><h3>{site.domain}</h3><small>{site.title}</small></div>
+      <span className={"br-snapshot-count " + (site.status !== "inspected" ? "is-limited" : "")}>
+        {site.status === "inspected" ? matches + "/4 signals detected" : "Inspection limited"}
+      </span>
+    </div>
+    <div className="br-snapshot-browser">
+      <div className="br-snapshot-toolbar"><span aria-hidden="true"><i/><i/><i/></span><small>{site.domain}</small><a href={site.url} target="_blank" rel="noopener noreferrer" aria-label={"Open " + site.domain}><ExternalLink size={14}/></a></div>
+      <div className="br-snapshot-image">
+        {!failed ? <img src={"/api/battle/preview?" + new URLSearchParams({url:site.url})} alt={"Live homepage screenshot preview for " + site.domain} onLoad={() => setLoaded(true)} onError={() => setFailed(true)}/> : <div className="br-snapshot-unavailable"><ImageOff size={28}/><strong>Screenshot unavailable</strong><span>Open the site or retry from the Battle Room.</span></div>}
+        {!loaded && !failed && <div className="br-snapshot-fetch"><LoaderCircle size={18} className="battle-spin"/> Requesting screenshot</div>}
+      </div>
+    </div>
+    <div className="br-snapshot-bottom"><span><Globe2 size={15}/> {site.status === "inspected" ? "Public text inspected" : "Public text unavailable"}</span><a href={site.url} target="_blank" rel="noopener noreferrer">View source <ArrowUpRight size={15}/></a></div>
+  </article>;
+}
+
+const BUYER_STAGES: { key: SignalKey; title: string; question: string }[] = [
+  {key:"headline", title:"Understand the offer",question:"Is a main headline visible?"},
+  {key:"action",title:"Know what to do",question:"Is a recognizable action link visible?"},
+  {key:"trust",title:"Look for reassurance",question:"Is trust or support information mentioned?"},
+  {key:"pricing",title:"Evaluate the next step",question:"Is a price or pricing signal visible?"},
+];
+function signalEvidence(site: InspectionSite, key: SignalKey): string {
+  if (site.status !== "inspected") return "Page text unavailable";
+  const signal = site.signals.find(s => s.key === key);
+  return signal?.observed ? signal.excerpt : "Not detected in captured homepage text";
 }
 
 export default function ResultsView({ ownSite, competitorSite }: { ownSite: string; competitorSite: string }) {
@@ -72,6 +106,8 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
   }, [ownSite, competitorSite, storageKey, retry]);
 
   const model = report ? buildReportModel(report) : null;
+  const ownCount = report?.own.status === "inspected" ? report.own.signals.filter(signal => signal.observed).length : 0;
+  const competitorCount = report?.competitor.status === "inspected" ? report.competitor.signals.filter(signal => signal.observed).length : 0;
   const dateText = report ? new Date(report.createdAt).toLocaleString("en-US", { dateStyle:"medium", timeStyle:"short" }) : "";
   return <div className="battle-page br-page">
     <header className="battle-header">
@@ -126,9 +162,25 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
           </div>
         </section>
 
+        <section className="br-section br-live-section" aria-labelledby="br-live-title">
+          <div className="br-section-heading">
+            <div><span className="br-section-index">02 / REAL PAGE EVIDENCE</span><h2 id="br-live-title">Both websites, side by side</h2></div>
+            <span className="br-section-context"><Eye size={15}/> Public homepage captures</span>
+          </div>
+          <div className="br-snapshot-grid">
+            <WebsiteSnapshot site={report.own} label="YOUR WEBSITE"/>
+            <WebsiteSnapshot site={report.competitor} label="COMPETITOR"/>
+          </div>
+          <div className="br-coverage-summary">
+            <div><strong>{report.own.domain}</strong><span>{report.own.status === "inspected" ? ownCount + " of 4 signals" : "Not inspected"}</span><div className="br-coverage-track"><span style={{width: report.own.status === "inspected" ? (ownCount * 25) + "%" : "0%"}}/></div></div>
+            <div><strong>{report.competitor.domain}</strong><span>{report.competitor.status === "inspected" ? competitorCount + " of 4 signals" : "Not inspected"}</span><div className="br-coverage-track br-coverage-track--other"><span style={{width: report.competitor.status === "inspected" ? (competitorCount * 25) + "%" : "0%"}}/></div></div>
+            <p>This is detection coverage, not a conversion or design-quality score. A missing signal means it was not found in the captured text.</p>
+          </div>
+        </section>
+
         <section className="br-section" aria-labelledby="br-scorecard">
           <div className="br-section-heading">
-            <div><span className="br-section-index">02 / SCORECARD</span><h2 id="br-scorecard">Five-factor comparison</h2></div>
+            <div><span className="br-section-index">03 / SIGNAL SCORECARD</span><h2 id="br-scorecard">Five-factor comparison</h2></div>
             <span className="br-section-context">Visible homepage signals</span>
           </div>
           <div className="br-scorecard">
@@ -148,7 +200,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
 
         <section className="br-section" aria-labelledby="br-findings">
           <div className="br-section-heading">
-            <div><span className="br-section-index">03 / EVIDENCE</span><h2 id="br-findings">Key findings</h2></div>
+            <div><span className="br-section-index">04 / SOURCE EVIDENCE</span><h2 id="br-findings">Key findings</h2></div>
             <span className="br-section-context">Up to 3 observations</span>
           </div>
           {model.findings.length > 0 ? <div className="br-findings">
@@ -163,9 +215,28 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
           </div> : <div className="br-empty"><CircleAlert size={22}/><strong>Not enough evidence yet</strong><p>Neither page returned reliable matching information. Try scanning again or review the sites directly.</p></div>}
         </section>
 
+        <section className="br-section" aria-labelledby="br-journey-title">
+          <div className="br-section-heading">
+            <div><span className="br-section-index">05 / BUYER PATH CHECKS</span><h2 id="br-journey-title">Can a visitor find the essentials?</h2></div>
+            <span className="br-section-context">Text-based checks, not a user test</span>
+          </div>
+          <div className="br-journey">
+            {BUYER_STAGES.map((stage, index) => {
+              const a = report.own.status === "inspected" && report.own.signals.some(s => s.key === stage.key && s.observed);
+              const b = report.competitor.status === "inspected" && report.competitor.signals.some(s => s.key === stage.key && s.observed);
+              return <article className="br-journey-stage" key={stage.key}>
+                <div className="br-journey-heading"><span>{String(index+1).padStart(2,"0")}</span><div><h3>{stage.title}</h3><p>{stage.question}</p></div></div>
+                <div className="br-journey-sites">
+                  <div><span>YOUR WEBSITE</span><DetectionTag status={report.own.status !== "inspected" ? "unavailable" : a ? "found" : "unconfirmed"}/><small>{signalEvidence(report.own,stage.key)}</small></div>
+                  <div><span>COMPETITOR</span><DetectionTag status={report.competitor.status !== "inspected" ? "unavailable" : b ? "found" : "unconfirmed"}/><small>{signalEvidence(report.competitor,stage.key)}</small></div>
+                </div>
+              </article>;
+            })}
+          </div>
+        </section>
         <section className="br-section" aria-labelledby="br-fixes">
           <div className="br-section-heading">
-            <div><span className="br-section-index">04 / NEXT STEPS</span><h2 id="br-fixes">Top improvements</h2></div>
+            <div><span className="br-section-index">06 / ACTION PLAN</span><h2 id="br-fixes">Top improvements</h2></div>
             <span className="br-section-context">Focus on your website</span>
           </div>
           {model.fixes.length > 0 ? <div className="br-fixes">
@@ -176,6 +247,10 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
             </article>)}
           </div> : <div className="br-empty"><Target size={22}/><strong>Inspect your site to get improvements</strong><p>We couldn't read enough of your homepage to suggest evidence-based next steps.</p></div>}
         </section>
+        <div className="br-next-preview">
+          <div><span><LockKeyhole size={15}/> DEEPER ANALYSIS</span><h2>Go beyond the homepage</h2><p>Interaction testing, detailed visual annotations and a full buyer-experience audit require additional analysis. They are not included in this initial preview.</p></div>
+          <Link href={editURL}>Compare another site <ArrowRight size={17}/></Link>
+        </div>
         <div className="br-actions">
           <button type="button" className="br-primary" onClick={() => setRetry(n => n + 1)}><RefreshCw size={17}/> Scan again</button>
           <Link href={battleURL} className="br-secondary">Review screenshots <ArrowUpRight size={17}/></Link>

@@ -8,12 +8,14 @@ import { normalizePublicURL, sameWebsite } from "@/lib/url-validation";
 import {
   ArrowRight, ArrowUpRight, Check, ChevronDown, CircleHelp, ClipboardCheck,
   Eye, FileSearch, GitCompareArrows, Link2, LockKeyhole, Menu, MousePointer2,
-  ShieldCheck, Sparkles, Tag, Target, X, Zap,
+  ShieldCheck, Sparkles, Tag, Target, X, Zap, Search, LoaderCircle, ExternalLink,
 } from "lucide-react";
 
 type Field = "own" | "competitor";
 type ReportTab = "overview" | "evidence" | "fixes";
 type FieldErrors = Partial<Record<Field, string>>;
+type SuggestedCompetitor = { name: string; domain: string; url: string; description: string };
+type CompetitorDiscovery = { suggestions: SuggestedCompetitor[]; title: string; source: string; note: string; error?: string };
 
 const signals = [
   { name: "Offer clarity", weight: "25%", detail: "Can visitors understand your offer and who it helps?", Icon: Target },
@@ -24,7 +26,7 @@ const signals = [
 ];
 
 const faq = [
-  { q: "Is vsyde free to try?", a: "A free comparison preview is planned, followed by an optional $19 one-time report. Automated scans are not available yet." },
+  { q: "Is vsyde free to try?", a: "A free comparison preview is planned, followed by an optional $19 one-time report. Public homepage scans are available now; the optional paid report is not launched yet." },
   { q: "Do I need an account?", a: "No account is planned for V1. When report delivery launches, buyers will access their private report through a secure link." },
   { q: "How does vsyde compare two websites?", a: "The intended analysis uses the same five buyer-experience criteria for both public websites. Every finding should have observable evidence, a confidence note, and a clear limitation where necessary." },
   { q: "What if a site blocks inspection?", a: "Blocked or inaccessible pages should result in a limited or inconclusive evaluation, never an automatic loss." },
@@ -41,59 +43,46 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function Score({ name, score, other = false }: { name: string; score: number; other?: boolean }) {
-  return (
-    <div className="report-score">
-      <div className="report-score__heading"><span className={`site-dot ${other ? "site-dot--other" : ""}`}/><span>{name}</span></div>
-      <strong>{score.toFixed(1)}<small>/10</small></strong>
-      <div className="score-track" aria-label={`Sample score: ${score} out of 10`} role="img">
-        <span className={other ? "other" : ""} style={{ width: `${score * 10}%` }}/>
-      </div>
-    </div>
-  );
-}
-
 function SampleReport() {
   const [tab, setTab] = useState<ReportTab>("overview");
   const tabs: { id: ReportTab; title: string }[] = [
     { id: "overview", title: "Overview" }, { id: "evidence", title: "Evidence" }, { id: "fixes", title: "Fix plan" },
   ];
-  return (
-    <div className="report-window" aria-label="Sample comparison report">
-      <div className="report-toolbar">
-        <div className="report-toolbar__brand"><span className="toolbar-dots" aria-hidden="true"><i/><i/><i/></span><strong>vsyde <span>/ report</span></strong></div>
-        <span className="sample-chip"><span aria-hidden="true"/> Sample report · Not a live scan</span>
-      </div>
-      <div className="report-tabs" role="tablist" aria-label="Sample report views">
-        {tabs.map(({ id, title }) => <button key={id} type="button" role="tab" id={`tab-${id}`} aria-controls={tab === id ? `panel-${id}` : undefined} aria-selected={tab === id} tabIndex={tab === id ? 0 : -1} className={tab === id ? "active" : ""} onClick={() => setTab(id)} onKeyDown={e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; e.preventDefault(); const idx = tabs.findIndex(t => t.id === tab); const next = tabs[(idx + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length].id; setTab(next); document.getElementById(`tab-${next}`)?.focus(); }}>{title}</button>)}
-      </div>
-      <div className="report-body">
-        {tab === "overview" && <div role="tabpanel" aria-labelledby="tab-overview" id="panel-overview" className="report-panel" key="overview">
-          <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Two sites. A clearer picture.</h3></div><span className="confidence-chip">Overview</span></div>
-          <div className="report-score-grid"><Score name="yourwebsite.com" score={8.3}/><Score name="competitor.com" score={6.7} other/></div>
-          <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>Your site leads</strong><p>Clearer positioning and a more specific call to action.</p></div></div>
-          <div className="report-bottomline"><div><span className="micro-label">What you would see</span><strong>Scores backed by visible observations</strong></div><p>A completed report shows evidence, sources and limitations.</p></div>
-        </div>}
-        {tab === "evidence" && <div role="tabpanel" aria-labelledby="tab-evidence" id="panel-evidence" className="report-panel" key="evidence">
-          <div className="report-topline"><div><span className="micro-label">Evidence</span><h3>See the reason behind the score.</h3></div><span className="confidence-chip">Clarity</span></div>
-          <div className="evidence-grid">
-            <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">Site A · offer clarity</span><strong>Clear action in the hero</strong><p>The headline identifies the audience and makes the next action clear.</p><small>Evidence source shown with a completed report</small></div>
-            <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">Site B · offer clarity</span><strong>Headline needs specificity</strong><p>A broad headline leaves the buyer unsure what the product does.</p><small>Source: example placeholder · not inspected</small></div>
-          </div>
-          <p className="report-disclaimer">Completed reports are designed to include inspected URLs, timestamps and coverage details.</p>
-        </div>}
-        {tab === "fixes" && <div role="tabpanel" aria-labelledby="tab-fixes" id="panel-fixes" className="report-panel" key="fixes">
-          <div className="report-topline"><div><span className="micro-label">Action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Prioritized</span></div>
-          <div className="fix-list">
-            <div className="fix-item"><span>P0</span><div><strong>Make the first headline specific</strong><p>Explain the offer, audience and outcome in plain language.</p></div><small>High impact · Low effort</small></div>
-            <div className="fix-item"><span>P1</span><div><strong>Clarify the primary CTA</strong><p>Choose an action label that matches the next step.</p></div><small>Medium effort</small></div>
-            <div className="fix-item"><span>P2</span><div><strong>Surface verifiable trust information</strong><p>Place genuine proof near the purchase decision.</p></div><small>Validate first</small></div>
-          </div>
-          <p className="report-disclaimer">Full reports will include prioritized fixes and copy-ready implementation prompts when report delivery launches.</p>
-        </div>}
-      </div>
+  return <div className="report-window" aria-label="How a live comparison report is organized">
+    <div className="report-toolbar">
+      <div className="report-toolbar__brand"><span className="toolbar-dots" aria-hidden="true"><i/><i/><i/></span><strong>vsyde <span>/ report</span></strong></div>
+      <span className="sample-chip"><span aria-hidden="true"/> Interface preview · Not a live scan</span>
     </div>
-  );
+    <div className="report-tabs" role="tablist" aria-label="Report sections">
+      {tabs.map(({id,title})=><button key={id} type="button" role="tab" id={`tab-${id}`} aria-controls={tab===id ? `panel-${id}` : undefined} aria-selected={tab===id} tabIndex={tab===id?0:-1} className={tab===id?"active":""} onClick={()=>setTab(id)} onKeyDown={e=>{if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;e.preventDefault();const index=tabs.findIndex(t=>t.id===tab);const next=tabs[(index+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length].id;setTab(next);document.getElementById(`tab-${next}`)?.focus();}}>{title}</button>)}
+    </div>
+    <div className="report-body">
+      {tab==="overview" && <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" className="report-panel" key="overview">
+        <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Both websites. One evidence-led view.</h3></div><span className="confidence-chip">Coverage first</span></div>
+        <div className="report-score-grid">
+          <div className="report-score"><div className="report-score__heading"><span className="site-dot"/><span>Your website</span></div><strong className="preview-status-text">Homepage inspection</strong><p className="preview-card-description">Real public signals and screenshot shown after you scan.</p></div>
+          <div className="report-score"><div className="report-score__heading"><span className="site-dot site-dot--other"/><span>Selected competitor</span></div><strong className="preview-status-text">Same checks</strong><p className="preview-card-description">One fair standard, with missing evidence labelled.</p></div>
+        </div>
+        <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>No invented winner or scores</strong><p>Real observations, coverage limits and a preliminary verdict appear only after checking both sites.</p></div></div>
+      </div>}
+      {tab==="evidence" && <div role="tabpanel" id="panel-evidence" aria-labelledby="tab-evidence" className="report-panel" key="evidence">
+        <div className="report-topline"><div><span className="micro-label">Evidence</span><h3>See where each observation came from.</h3></div><span className="confidence-chip">Source links</span></div>
+        <div className="evidence-grid">
+          <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">VISUAL INSPECTION</span><strong>Public homepage captures</strong><p>Real website screenshot requests show what the page looked like when captured.</p><small>Screenshot availability can vary by website</small></div>
+          <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">TEXT EVIDENCE</span><strong>Exact observed page signals</strong><p>Detected headlines, action links, trust information and pricing text are shown with sources.</p><small>No pretend conversion-rate data</small></div>
+        </div>
+      </div>}
+      {tab==="fixes" && <div role="tabpanel" id="panel-fixes" aria-labelledby="tab-fixes" className="report-panel" key="fixes">
+        <div className="report-topline"><div><span className="micro-label">Action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Based on scan</span></div>
+        <div className="fix-list">
+          <div className="fix-item"><span>01</span><div><strong>Check the first-screen offer</strong><p>Show if your detected headline explains what the product does.</p></div><small>Offer clarity</small></div>
+          <div className="fix-item"><span>02</span><div><strong>Review your next action</strong><p>Look for a clear, identifiable call to action in public page text.</p></div><small>CTA path</small></div>
+          <div className="fix-item"><span>03</span><div><strong>Look for reassurance</strong><p>Find the trust and pricing evidence buyers may look for.</p></div><small>Trust + pricing</small></div>
+        </div>
+        <p className="report-disclaimer">These are the checks the product can perform. Real recommendations appear after a scan.</p>
+      </div>}
+    </div>
+  </div>;
 }
 
 export default function LandingPage() {
@@ -102,6 +91,12 @@ export default function LandingPage() {
   const [competitor, setCompetitor] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [notice, setNotice] = useState("");
+  const [discoverOpen, setDiscoverOpen] = useState(false);
+  const [discoverStatus, setDiscoverStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [discoverMessage, setDiscoverMessage] = useState("");
+  const [suggestions, setSuggestions] = useState<SuggestedCompetitor[]>([]);
+  const [discoveryTitle, setDiscoveryTitle] = useState("");
+  const discoverController = useRef<AbortController | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
@@ -170,6 +165,44 @@ export default function LandingPage() {
     router.push(`/battle?${query.toString()}`);
   }
 
+  async function findCompetitors() {
+    discoverController.current?.abort();
+    const own = normalizePublicURL(yourSite);
+    if (!own) {
+      setErrors(old => ({...old, own:"Enter your website first so we can search for related sites."}));
+      firstRef.current?.focus();
+      return;
+    }
+    setErrors({});
+    setDiscoverOpen(true);
+    setDiscoverStatus("loading");
+    setDiscoverMessage("");
+    setSuggestions([]);
+    const controller = new AbortController();
+    discoverController.current = controller;
+    try {
+      const response = await fetch("/api/competitors?" + new URLSearchParams({site:own.href}), {signal:controller.signal,cache:"no-store"});
+      const data = await response.json() as CompetitorDiscovery;
+      if (!response.ok) throw new Error(data.error || "Search could not be completed.");
+      if (controller.signal.aborted) return;
+      setDiscoveryTitle(data.title);
+      setSuggestions(data.suggestions || []);
+      setDiscoverStatus("done");
+      if (!data.suggestions?.length) setDiscoverMessage("No reliable matches surfaced from this search. Try a competitor URL manually.");
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setDiscoverStatus("error");
+      setDiscoverMessage(error instanceof Error ? error.message : "Search is temporarily unavailable.");
+    }
+  }
+
+  function chooseCompetitor(item: SuggestedCompetitor) {
+    setCompetitor(item.url);
+    clearError("competitor");
+    setDiscoverOpen(false);
+    secondRef.current?.focus();
+  }
+
   function clearError(field: Field) { setErrors(old => ({ ...old, [field]: undefined })); setNotice(""); }
 
   return (
@@ -194,12 +227,31 @@ export default function LandingPage() {
           <form className="comparison-form" id="compare" onSubmit={submit} noValidate>
             <div className="form-intro"><span><GitCompareArrows size={17}/> New comparison</span><small><LockKeyhole size={13}/> Public websites only</small></div>
             <label htmlFor="own-url">Your website</label>
-            <div className={`input-shell ${errors.own ? "input-shell--invalid" : ""}`}><Link2 size={19} aria-hidden="true"/><input ref={firstRef} id="own-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="yourwebsite.com" value={yourSite} onChange={event => { setYourSite(event.target.value); clearError("own"); }} aria-invalid={!!errors.own} aria-describedby={errors.own ? `${errorId}-own` : undefined}/></div>
+            <div className={`input-shell ${errors.own ? "input-shell--invalid" : ""}`}><Link2 size={19} aria-hidden="true"/><input ref={firstRef} id="own-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="yourwebsite.com" value={yourSite} onChange={event => { setYourSite(event.target.value); clearError("own"); discoverController.current?.abort(); setDiscoverStatus("idle"); setDiscoverOpen(false); setSuggestions([]); }} aria-invalid={!!errors.own} aria-describedby={errors.own ? `${errorId}-own` : undefined}/></div>
             {errors.own && <p className="field-error" id={`${errorId}-own`} role="alert">{errors.own}</p>}
             <div className="vs-row" aria-hidden="true"><span/>VS<span/></div>
             <label htmlFor="competitor-url">Competitor website</label>
             <div className={`input-shell ${errors.competitor ? "input-shell--invalid" : ""}`}><Link2 size={19} aria-hidden="true"/><input ref={secondRef} id="competitor-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="competitor.com" value={competitor} onChange={event => { setCompetitor(event.target.value); clearError("competitor"); }} aria-invalid={!!errors.competitor} aria-describedby={errors.competitor ? `${errorId}-competitor` : undefined}/></div>
             {errors.competitor && <p className="field-error" id={`${errorId}-competitor`} role="alert">{errors.competitor}</p>}
+            <div className="discover-entry">
+              <span>Don't know who to compare?</span>
+              <button type="button" onClick={() => { if (discoverOpen && discoverStatus !== "loading") setDiscoverOpen(false); else void findCompetitors(); }} aria-expanded={discoverOpen} aria-controls="competitor-discovery-panel">
+                <Search size={16} aria-hidden="true"/> Find competitors for me <ArrowRight size={15} aria-hidden="true"/>
+              </button>
+            </div>
+            {discoverOpen && <div className="discover-panel" id="competitor-discovery-panel" aria-live="polite">
+              {discoverStatus === "loading" && <div className="discover-loading"><LoaderCircle size={19} className="battle-spin"/><span>Reading your public homepage and searching for related websites…</span></div>}
+              {discoverStatus === "error" && <div className="discover-message" role="alert">{discoverMessage}<button type="button" onClick={() => void findCompetitors()}>Retry search</button></div>}
+              {discoverStatus === "done" && <>
+                <div className="discover-panel-head"><strong>Suggested websites</strong><span>Based on {discoveryTitle}</span></div>
+                {suggestions.length ? <div className="discover-results">{suggestions.map(item => <button type="button" className="discover-option" key={item.domain} onClick={() => chooseCompetitor(item)}>
+                  <span className="discover-option-top"><strong>{item.name}</strong><span>Choose <ArrowRight size={14}/></span></span>
+                  <small>{item.domain}</small>
+                  {item.description && <span className="discover-option-description">{item.description}</span>}
+                </button>)}</div> : <div className="discover-message">{discoverMessage}</div>}
+                <p className="discover-disclaimer">Suggestions come from public search, not verified business matches. Check the site before choosing it. <ExternalLink size={12} aria-hidden="true"/></p>
+              </>}
+            </div>}
             <button type="submit" className="primary-button form-submit">Start Free Battle <ArrowUpRight size={18} aria-hidden="true"/></button>
             <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $19 one-time full report</p>
             {notice && <p className="form-notice" role="status">{notice}</p>}
@@ -224,7 +276,7 @@ export default function LandingPage() {
 
         <section id="how-it-works" className="how-section content-width" aria-labelledby="how-title" data-reveal>
           <div className="section-heading"><span className="section-overline">THREE SIMPLE STEPS</span><h2 id="how-title">From two URLs<br/><em>to better decisions.</em></h2></div>
-          <div className="steps-list"><div className="step"><span className="step-number">01</span><span className="step-icon"><Link2 size={22}/></span><div><h3>Enter two websites</h3><p>Your site and one public competitor. No signup.</p></div></div><div className="step"><span className="step-number">02</span><span className="step-icon"><Eye size={22}/></span><div><h3>See the free preview</h3><p>A preliminary verdict, selected scores and a supported finding.</p></div></div><div className="step"><span className="step-number">03</span><span className="step-icon"><Sparkles size={22}/></span><div><h3>Unlock the full report</h3><p>Deeper evidence, prioritized fixes and implementation prompts for $19.</p></div></div></div>
+          <div className="steps-list"><div className="step"><span className="step-number">01</span><span className="step-icon"><Link2 size={22}/></span><div><h3>Enter two websites</h3><p>Add a competitor URL or discover related websites without leaving vsyde. No signup.</p></div></div><div className="step"><span className="step-number">02</span><span className="step-icon"><Eye size={22}/></span><div><h3>See the free preview</h3><p>A preliminary verdict, selected scores and a supported finding.</p></div></div><div className="step"><span className="step-number">03</span><span className="step-icon"><Sparkles size={22}/></span><div><h3>Unlock the full report</h3><p>Deeper evidence, prioritized fixes and implementation prompts for $19.</p></div></div></div>
         </section>
 
         <section id="pricing" className="pricing-section content-width" aria-labelledby="pricing-title" data-reveal>
