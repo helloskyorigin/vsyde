@@ -15,7 +15,7 @@ type Field = "own" | "competitor";
 type ReportTab = "overview" | "evidence" | "fixes";
 type FieldErrors = Partial<Record<Field, string>>;
 type SuggestedCompetitor = { name: string; domain: string; url: string; description: string };
-type CompetitorDiscovery = { suggestions: SuggestedCompetitor[]; title: string; source: string; note: string; error?: string };
+type CompetitorDiscovery = { suggestions: SuggestedCompetitor[]; title: string; source: string; note: string; category?: string; error?: string };
 
 const signals = [
   { name: "Offer clarity", weight: "25%", detail: "Can visitors understand your offer and who it helps?", Icon: Target },
@@ -26,7 +26,7 @@ const signals = [
 ];
 
 const faq = [
-  { q: "Is vsyde free to try?", a: "A free comparison preview is planned, followed by an optional $19 one-time report. Public homepage scans are available now; the optional paid report is not launched yet." },
+  { q: "Is vsyde free to try?", a: "A free comparison preview is planned, followed by an optional $19 one-time report. Public-page scans are available now; the optional paid report is not launched yet." },
   { q: "Do I need an account?", a: "No account is planned for V1. When report delivery launches, buyers will access their private report through a secure link." },
   { q: "How does vsyde compare two websites?", a: "The intended analysis uses the same five buyer-experience criteria for both public websites. Every finding should have observable evidence, a confidence note, and a clear limitation where necessary." },
   { q: "What if a site blocks inspection?", a: "Blocked or inaccessible pages should result in a limited or inconclusive evaluation, never an automatic loss." },
@@ -60,7 +60,7 @@ function SampleReport() {
       {tab==="overview" && <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" className="report-panel" key="overview">
         <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Both websites. One evidence-led view.</h3></div><span className="confidence-chip">Coverage first</span></div>
         <div className="report-score-grid">
-          <div className="report-score"><div className="report-score__heading"><span className="site-dot"/><span>Your website</span></div><strong className="preview-status-text">Homepage inspection</strong><p className="preview-card-description">Real public signals and screenshot shown after you scan.</p></div>
+          <div className="report-score"><div className="report-score__heading"><span className="site-dot"/><span>Your website</span></div><strong className="preview-status-text">Public-page inspection</strong><p className="preview-card-description">Linked page evidence plus homepage screenshot after scanning.</p></div>
           <div className="report-score"><div className="report-score__heading"><span className="site-dot site-dot--other"/><span>Selected competitor</span></div><strong className="preview-status-text">Same checks</strong><p className="preview-card-description">One fair standard, with missing evidence labelled.</p></div>
         </div>
         <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>No invented winner or scores</strong><p>Real observations, coverage limits and a preliminary verdict appear only after checking both sites.</p></div></div>
@@ -96,6 +96,8 @@ export default function LandingPage() {
   const [discoverMessage, setDiscoverMessage] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestedCompetitor[]>([]);
   const [discoveryTitle, setDiscoveryTitle] = useState("");
+  const [discoveryCategory, setDiscoveryCategory] = useState("");
+  const [discoveryNote, setDiscoveryNote] = useState("");
   const discoverController = useRef<AbortController | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -186,9 +188,11 @@ export default function LandingPage() {
       if (!response.ok) throw new Error(data.error || "Search could not be completed.");
       if (controller.signal.aborted) return;
       setDiscoveryTitle(data.title);
+      setDiscoveryCategory(data.category || "");
+      setDiscoveryNote(data.note || "");
       setSuggestions(data.suggestions || []);
       setDiscoverStatus("done");
-      if (!data.suggestions?.length) setDiscoverMessage("No reliable matches surfaced from this search. Try a competitor URL manually.");
+      if (!data.suggestions?.length) setDiscoverMessage(data.note || "No reliable matches surfaced. Enter a competitor URL manually.");
     } catch (error) {
       if (controller.signal.aborted) return;
       setDiscoverStatus("error");
@@ -224,6 +228,7 @@ export default function LandingPage() {
             <h1 id="hero-heading">Your website.<br/>Their website.<br/><span>Who wins?</span></h1>
             <p>Compare two websites from a buyer’s point of view. Discover what’s clear, what’s missing, and what to improve.</p>
           </div>
+          <div className="hero-compare-layout">
           <form className="comparison-form" id="compare" onSubmit={submit} noValidate>
             <div className="form-intro"><span><GitCompareArrows size={17}/> New comparison</span><small><LockKeyhole size={13}/> Public websites only</small></div>
             <label htmlFor="own-url">Your website</label>
@@ -233,6 +238,13 @@ export default function LandingPage() {
             <label htmlFor="competitor-url">Competitor website</label>
             <div className={`input-shell ${errors.competitor ? "input-shell--invalid" : ""}`}><Link2 size={19} aria-hidden="true"/><input ref={secondRef} id="competitor-url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="competitor.com" value={competitor} onChange={event => { setCompetitor(event.target.value); clearError("competitor"); }} aria-invalid={!!errors.competitor} aria-describedby={errors.competitor ? `${errorId}-competitor` : undefined}/></div>
             {errors.competitor && <p className="field-error" id={`${errorId}-competitor`} role="alert">{errors.competitor}</p>}
+            <button type="submit" className="primary-button form-submit">Start Free Battle <ArrowUpRight size={18} aria-hidden="true"/></button>
+            <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $19 one-time full report</p>
+            {notice && <p className="form-notice" role="status">{notice}</p>}
+          </form>
+          <aside className="competitor-side" aria-label="Optional competitor discovery">
+            <div className="competitor-side-head"><Search size={20} aria-hidden="true"/><strong>Competitor finder</strong></div>
+            <p className="competitor-side-hint">Not sure which website to compare? Find relevant options after entering your URL.</p>
             <div className="discover-entry">
               <span>Don't know who to compare?</span>
               <button type="button" onClick={() => { if (discoverOpen && discoverStatus !== "loading") setDiscoverOpen(false); else void findCompetitors(); }} aria-expanded={discoverOpen} aria-controls="competitor-discovery-panel">
@@ -243,19 +255,17 @@ export default function LandingPage() {
               {discoverStatus === "loading" && <div className="discover-loading"><LoaderCircle size={19} className="battle-spin"/><span>Reading your public homepage and searching for related websites…</span></div>}
               {discoverStatus === "error" && <div className="discover-message" role="alert">{discoverMessage}<button type="button" onClick={() => void findCompetitors()}>Retry search</button></div>}
               {discoverStatus === "done" && <>
-                <div className="discover-panel-head"><strong>Suggested websites</strong><span>Based on {discoveryTitle}</span></div>
+                <div className="discover-panel-head"><strong>Suggested websites</strong><span>{discoveryCategory ? "Category: " + discoveryCategory : "Based on " + discoveryTitle}</span></div>
                 {suggestions.length ? <div className="discover-results">{suggestions.map(item => <button type="button" className="discover-option" key={item.domain} onClick={() => chooseCompetitor(item)}>
                   <span className="discover-option-top"><strong>{item.name}</strong><span>Choose <ArrowRight size={14}/></span></span>
                   <small>{item.domain}</small>
                   {item.description && <span className="discover-option-description">{item.description}</span>}
                 </button>)}</div> : <div className="discover-message">{discoverMessage}</div>}
-                <p className="discover-disclaimer">Suggestions come from public search, not verified business matches. Check the site before choosing it. <ExternalLink size={12} aria-hidden="true"/></p>
+                <p className="discover-disclaimer">{discoveryNote || "Suggestions are unverified leads. Check each site before comparing."} <ExternalLink size={12} aria-hidden="true"/></p>
               </>}
             </div>}
-            <button type="submit" className="primary-button form-submit">Start Free Battle <ArrowUpRight size={18} aria-hidden="true"/></button>
-            <p className="form-footnote">Free preview <span>·</span> No signup <span>·</span> $19 one-time full report</p>
-            {notice && <p className="form-notice" role="status">{notice}</p>}
-          </form>
+          </aside>
+          </div>
           <a className="hero-product-link" href="#product">Explore the report <ArrowRight size={16} aria-hidden="true"/></a>
         </section>
 
