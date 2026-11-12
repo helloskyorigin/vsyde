@@ -39,7 +39,7 @@ export function parseBingRSS(xml: string): RawSearchHit[] {
 const CATEGORIES: {category:string; keywords:string[]; patterns:RegExp[]}[] = [
   {category:"AI meeting notes and transcription",keywords:["meeting","transcription","notes"],patterns:[/\bmeeting (?:notes|assistant|recording|transcripts?)\b/i,/\b(?:transcri(?:be|ption)|notetaker|note.taker)\b/i]},
   {category:"social media scheduling",keywords:["social media","scheduling","posts"],patterns:[/\bsocial media (?:schedul|manag|publish|content)/i,/\bschedul(?:e|ing) (?:posts?|content)\b/i]},
-  {category:"AI writing and copywriting",keywords:["writing","copywriting","content"],patterns:[/\b(?:ai|automated) (?:writing|copywriting|content creation)\b/i,/\b(?:copywriting|writing assistant|write better)\b/i]},
+  {category:"AI writing and copywriting",keywords:["writing","copywriting","content"],patterns:[/\b(?:ai|automated) (?:writing|copywriting|content creation)\b/i,/\b(?:copywriting|writing assistant|writing (?:tool|software|app)|write better)\b/i]},
   {category:"SEO and keyword research",keywords:["seo","keyword","rankings"],patterns:[/\bseo\b/i,/\bkeyword research\b/i,/\bsearch engine optimi/i]},
   {category:"email marketing",keywords:["email","marketing","newsletter"],patterns:[/\bemail marketing\b/i,/\bemail campaigns?\b/i,/\bnewsletter (?:platform|tool|software)\b/i]},
   {category:"CRM and sales pipelines",keywords:["crm","sales","pipeline"],patterns:[/\bcrm\b/i,/\bsales pipeline\b/i,/\bcustomer relationship management\b/i]},
