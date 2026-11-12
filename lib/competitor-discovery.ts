@@ -37,6 +37,15 @@ export function parseBingRSS(xml: string): RawSearchHit[] {
 
 // Category matching deliberately uses product-specific phrases, not generic brand titles.
 const CATEGORIES: {category:string; keywords:string[]; patterns:RegExp[]}[] = [
+
+  {category:"website competitor comparison and analysis",keywords:["website","competitor","comparison"],patterns:[/\bcompare two websites\b/i,/\bwebsite comparisons?\b/i,/\bcompetitor (?:analysis|comparison|research)\b/i]},
+  {category:"AI agents and workflow automation",keywords:["ai agent","automation","workflow"],patterns:[/\bai agents?\b/i,/\bworkflow automation\b/i,/\bautomate (?:your )?workflows?\b/i]},
+  {category:"AI chatbot builders",keywords:["chatbot","assistant","chat"],patterns:[/\bchatbot (?:builder|platform|software)\b/i,/\bai chatbot\b/i,/\bchat assistant\b/i]},
+  {category:"document and PDF tools",keywords:["pdf","document","editor"],patterns:[/\bpdf (?:editor|converter|tools?)\b/i,/\bdocument (?:editor|converter|processing)\b/i]},
+  {category:"resume and CV builders",keywords:["resume","cv","builder"],patterns:[/\bresume builder\b/i,/\bcv builder\b/i,/\bai resume\b/i]},
+  {category:"AI voice and deepfake detection",keywords:["deepfake","detection","voice"],patterns:[/\bdeepfake detect(?:ion|or)\b/i,/\bai voice detect(?:ion|or)\b/i,/\bvoice cloning detect/i]},
+  {category:"digital product sales platforms",keywords:["digital products","creators","sell"],patterns:[/\bsell digital products\b/i,/\bdigital product storefront\b/i,/\bcreator commerce\b/i]},
+
   {category:"AI meeting notes and transcription",keywords:["meeting","transcription","notes"],patterns:[/\bmeeting (?:notes|assistant|recording|transcripts?)\b/i,/\b(?:transcri(?:be|ption)|notetaker|note.taker)\b/i]},
   {category:"social media scheduling",keywords:["social media","scheduling","posts"],patterns:[/\bsocial media (?:schedul|manag|publish|content)/i,/\bschedul(?:e|ing) (?:posts?|content)\b/i]},
   {category:"AI writing and copywriting",keywords:["writing","copywriting","content"],patterns:[/\b(?:ai|automated) (?:writing|copywriting|content creation)\b/i,/\b(?:copywriting|writing assistant|writing (?:tool|software|app)|write better)\b/i]},
