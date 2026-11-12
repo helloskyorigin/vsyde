@@ -2,7 +2,7 @@ import type { BattleInspection, EvidenceSignal, InspectionSite, SignalKey } from
 
 export type Detection = "found" | "unconfirmed" | "unavailable" | "not-checked";
 export type Factor = { key: SignalKey | "friction"; label: string; weight: string; own: Detection; competitor: Detection };
-export type Finding = { title: string; body: string; source: string; tag: string };
+export type Finding = { title: string; body: string; source: string; otherSource?: string; tag: string };
 export type Fix = { title: string; detail: string; priority: "01" | "02" | "03" };
 export type ReportModel = {
   verdict: string; explanation: string; tone: "lead" | "close" | "limited";
@@ -67,7 +67,7 @@ export function buildReportModel(report: BattleInspection): ReportModel {
     const key = factor.key as SignalKey;
     const a = findSignal(report.own, key);
     const b = findSignal(report.competitor, key);
-    if (a?.observed && !b?.observed && complete) {
+    if (a?.observed && !b?.observed && complete && comparableCoverage) {
       findings.push({
         title: "Detected on " + report.own.domain,
         body: factor.label + ": " + quote(a.excerpt) + ". A matching signal was not identified in the competitor's captured page text.",
@@ -83,12 +83,12 @@ export function buildReportModel(report: BattleInspection): ReportModel {
       findings.push({
         title: "Both websites show " + NAMES[key],
         body: "Your site: " + quote(a.excerpt) + " · Competitor: " + quote(b.excerpt),
-        source: a.sourceUrl || report.own.url, tag: factor.label,
+        source: a.sourceUrl || report.own.url, otherSource: b.sourceUrl || report.competitor.url, tag: factor.label,
       });
-    } else if (!complete && a?.observed && report.own.status === "inspected") {
-      findings.push({ title: "Found on your homepage", body: factor.label + ": " + quote(a.excerpt), source: report.own.url, tag: factor.label });
-    } else if (!complete && b?.observed && report.competitor.status === "inspected") {
-      findings.push({ title: "Found on the competitor homepage", body: factor.label + ": " + quote(b.excerpt), source: report.competitor.url, tag: factor.label });
+    } else if ((!complete || !comparableCoverage) && a?.observed && report.own.status === "inspected") {
+      findings.push({ title: "Found on your inspected pages", body: factor.label + ": " + quote(a.excerpt), source: a.sourceUrl || report.own.url, tag: factor.label });
+    } else if ((!complete || !comparableCoverage) && b?.observed && report.competitor.status === "inspected") {
+      findings.push({ title: "Found on the competitor pages", body: factor.label + ": " + quote(b.excerpt), source: b.sourceUrl || report.competitor.url, tag: factor.label });
     }
     if (findings.length === 3) break;
   }
