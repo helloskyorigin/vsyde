@@ -43,59 +43,46 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function Score({ name, score, other = false }: { name: string; score: number; other?: boolean }) {
-  return (
-    <div className="report-score">
-      <div className="report-score__heading"><span className={`site-dot ${other ? "site-dot--other" : ""}`}/><span>{name}</span></div>
-      <strong>{score.toFixed(1)}<small>/10</small></strong>
-      <div className="score-track" aria-label={`Sample score: ${score} out of 10`} role="img">
-        <span className={other ? "other" : ""} style={{ width: `${score * 10}%` }}/>
-      </div>
-    </div>
-  );
-}
-
 function SampleReport() {
   const [tab, setTab] = useState<ReportTab>("overview");
   const tabs: { id: ReportTab; title: string }[] = [
     { id: "overview", title: "Overview" }, { id: "evidence", title: "Evidence" }, { id: "fixes", title: "Fix plan" },
   ];
-  return (
-    <div className="report-window" aria-label="Sample comparison report">
-      <div className="report-toolbar">
-        <div className="report-toolbar__brand"><span className="toolbar-dots" aria-hidden="true"><i/><i/><i/></span><strong>vsyde <span>/ report</span></strong></div>
-        <span className="sample-chip"><span aria-hidden="true"/> Sample report · Not a live scan</span>
-      </div>
-      <div className="report-tabs" role="tablist" aria-label="Sample report views">
-        {tabs.map(({ id, title }) => <button key={id} type="button" role="tab" id={`tab-${id}`} aria-controls={tab === id ? `panel-${id}` : undefined} aria-selected={tab === id} tabIndex={tab === id ? 0 : -1} className={tab === id ? "active" : ""} onClick={() => setTab(id)} onKeyDown={e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; e.preventDefault(); const idx = tabs.findIndex(t => t.id === tab); const next = tabs[(idx + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length].id; setTab(next); document.getElementById(`tab-${next}`)?.focus(); }}>{title}</button>)}
-      </div>
-      <div className="report-body">
-        {tab === "overview" && <div role="tabpanel" aria-labelledby="tab-overview" id="panel-overview" className="report-panel" key="overview">
-          <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Two sites. A clearer picture.</h3></div><span className="confidence-chip">Overview</span></div>
-          <div className="report-score-grid"><Score name="yourwebsite.com" score={8.3}/><Score name="competitor.com" score={6.7} other/></div>
-          <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>Your site leads</strong><p>Clearer positioning and a more specific call to action.</p></div></div>
-          <div className="report-bottomline"><div><span className="micro-label">What you would see</span><strong>Scores backed by visible observations</strong></div><p>A completed report shows evidence, sources and limitations.</p></div>
-        </div>}
-        {tab === "evidence" && <div role="tabpanel" aria-labelledby="tab-evidence" id="panel-evidence" className="report-panel" key="evidence">
-          <div className="report-topline"><div><span className="micro-label">Evidence</span><h3>See the reason behind the score.</h3></div><span className="confidence-chip">Clarity</span></div>
-          <div className="evidence-grid">
-            <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">Site A · offer clarity</span><strong>Clear action in the hero</strong><p>The headline identifies the audience and makes the next action clear.</p><small>Evidence source shown with a completed report</small></div>
-            <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">Site B · offer clarity</span><strong>Headline needs specificity</strong><p>A broad headline leaves the buyer unsure what the product does.</p><small>Source: example placeholder · not inspected</small></div>
-          </div>
-          <p className="report-disclaimer">Completed reports are designed to include inspected URLs, timestamps and coverage details.</p>
-        </div>}
-        {tab === "fixes" && <div role="tabpanel" aria-labelledby="tab-fixes" id="panel-fixes" className="report-panel" key="fixes">
-          <div className="report-topline"><div><span className="micro-label">Action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Prioritized</span></div>
-          <div className="fix-list">
-            <div className="fix-item"><span>P0</span><div><strong>Make the first headline specific</strong><p>Explain the offer, audience and outcome in plain language.</p></div><small>High impact · Low effort</small></div>
-            <div className="fix-item"><span>P1</span><div><strong>Clarify the primary CTA</strong><p>Choose an action label that matches the next step.</p></div><small>Medium effort</small></div>
-            <div className="fix-item"><span>P2</span><div><strong>Surface verifiable trust information</strong><p>Place genuine proof near the purchase decision.</p></div><small>Validate first</small></div>
-          </div>
-          <p className="report-disclaimer">Full reports will include prioritized fixes and copy-ready implementation prompts when report delivery launches.</p>
-        </div>}
-      </div>
+  return <div className="report-window" aria-label="How a live comparison report is organized">
+    <div className="report-toolbar">
+      <div className="report-toolbar__brand"><span className="toolbar-dots" aria-hidden="true"><i/><i/><i/></span><strong>vsyde <span>/ report</span></strong></div>
+      <span className="sample-chip"><span aria-hidden="true"/> Interface preview · Not a live scan</span>
     </div>
-  );
+    <div className="report-tabs" role="tablist" aria-label="Report sections">
+      {tabs.map(({id,title})=><button key={id} type="button" role="tab" id={`tab-${id}`} aria-controls={tab===id ? `panel-${id}` : undefined} aria-selected={tab===id} tabIndex={tab===id?0:-1} className={tab===id?"active":""} onClick={()=>setTab(id)} onKeyDown={e=>{if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;e.preventDefault();const index=tabs.findIndex(t=>t.id===tab);const next=tabs[(index+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length].id;setTab(next);document.getElementById(`tab-${next}`)?.focus();}}>{title}</button>)}
+    </div>
+    <div className="report-body">
+      {tab==="overview" && <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview" className="report-panel" key="overview">
+        <div className="report-topline"><div><span className="micro-label">Battle overview</span><h3>Both websites. One evidence-led view.</h3></div><span className="confidence-chip">Coverage first</span></div>
+        <div className="report-score-grid">
+          <div className="report-score"><div className="report-score__heading"><span className="site-dot"/><span>Your website</span></div><strong className="preview-status-text">Homepage inspection</strong><p className="preview-card-description">Real public signals and screenshot shown after you scan.</p></div>
+          <div className="report-score"><div className="report-score__heading"><span className="site-dot site-dot--other"/><span>Selected competitor</span></div><strong className="preview-status-text">Same checks</strong><p className="preview-card-description">One fair standard, with missing evidence labelled.</p></div>
+        </div>
+        <div className="report-verdict"><span className="verdict-badge"><Sparkles size={18}/></span><div><strong>No invented winner or scores</strong><p>Real observations, coverage limits and a preliminary verdict appear only after checking both sites.</p></div></div>
+      </div>}
+      {tab==="evidence" && <div role="tabpanel" id="panel-evidence" aria-labelledby="tab-evidence" className="report-panel" key="evidence">
+        <div className="report-topline"><div><span className="micro-label">Evidence</span><h3>See where each observation came from.</h3></div><span className="confidence-chip">Source links</span></div>
+        <div className="evidence-grid">
+          <div className="evidence-item"><span className="evidence-icon"><Eye size={20}/></span><span className="micro-label">VISUAL INSPECTION</span><strong>Public homepage captures</strong><p>Real website screenshot requests show what the page looked like when captured.</p><small>Screenshot availability can vary by website</small></div>
+          <div className="evidence-item"><span className="evidence-icon evidence-icon--purple"><FileSearch size={20}/></span><span className="micro-label">TEXT EVIDENCE</span><strong>Exact observed page signals</strong><p>Detected headlines, action links, trust information and pricing text are shown with sources.</p><small>No pretend conversion-rate data</small></div>
+        </div>
+      </div>}
+      {tab==="fixes" && <div role="tabpanel" id="panel-fixes" aria-labelledby="tab-fixes" className="report-panel" key="fixes">
+        <div className="report-topline"><div><span className="micro-label">Action plan</span><h3>Less guessing. More shipping.</h3></div><span className="confidence-chip">Based on scan</span></div>
+        <div className="fix-list">
+          <div className="fix-item"><span>01</span><div><strong>Check the first-screen offer</strong><p>Show if your detected headline explains what the product does.</p></div><small>Offer clarity</small></div>
+          <div className="fix-item"><span>02</span><div><strong>Review your next action</strong><p>Look for a clear, identifiable call to action in public page text.</p></div><small>CTA path</small></div>
+          <div className="fix-item"><span>03</span><div><strong>Look for reassurance</strong><p>Find the trust and pricing evidence buyers may look for.</p></div><small>Trust + pricing</small></div>
+        </div>
+        <p className="report-disclaimer">These are the checks the product can perform. Real recommendations appear after a scan.</p>
+      </div>}
+    </div>
+  </div>;
 }
 
 export default function LandingPage() {
