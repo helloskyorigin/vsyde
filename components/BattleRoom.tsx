@@ -147,7 +147,7 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
   const urlParams = new URLSearchParams({ own: ownSite, competitor: competitorSite });
   const reportURL = "/results?" + urlParams.toString();
   const editURL = "/?" + urlParams.toString() + "#compare";
-  const snapshotKey = "vsyde:report:" + urlParams.toString();
+  const snapshotKey = "vsyde:report:v2:" + urlParams.toString();
   useEffect(() => {
     const controller = new AbortController();
     setInspection(null);
@@ -190,7 +190,7 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
       domain:site.domain, label:signal.label, excerpt:signal.excerpt,
     })) : []
   ).slice(0, 3) : [];
-  const readSummary = inspectionDone ? (inspection?.summary || "") : inspectionStatus === "failed" ? inspectionError : "Reading publicly visible page content.";
+  const readSummary = inspectionDone ? (inspection?.summary || "") : inspectionStatus === "failed" ? inspectionError : "Inspecting homepage and linked pricing, product, and trust pages.";
   const status = inspectionStatus === "failed" ? "Limited check" : comparisonReady ? "Evidence ready" : "Checking websites";
 
   return <div className="battle-page">
@@ -231,7 +231,7 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
           <div className="battle-section-title"><div><span className="battle-section-overline">BATTLE WORKFLOW</span><h2 id="battle-stages-title">Analysis stages</h2></div><ShieldCheck size={21}/></div>
           <div className="battle-stage-list">
             <Stage number="01" title="Website screenshots" description="Public homepage capture" state={screenshotsPending ? "working" : screenshotsLimited ? "limited" : "complete"}/>
-            <Stage number="02" title="Page content inspection" description="Collect visible homepage text" state={inspectionStatus === "loading" ? "working" : inspectionStatus === "failed" ? "limited" : inspection?.status === "unavailable" ? "limited" : "complete"}/>
+            <Stage number="02" title="Page content inspection" description="Read linked public pages (up to 4 per site)" state={inspectionStatus === "loading" ? "working" : inspectionStatus === "failed" ? "limited" : inspection?.status === "unavailable" ? "limited" : "complete"}/>
             <Stage number="03" title="Offer & first impression" description="Headline and action links" state={!inspectionDone ? "queued" : extracted ? "complete" : "limited"}/>
             <Stage number="04" title="Trust & pricing signals" description="Check available on-page evidence" state={!inspectionDone ? "queued" : extracted ? "complete" : "limited"}/>
             <Stage number="05" title="Preliminary findings" description="Evidence coverage and comparison" state={!inspectionDone ? "queued" : inspection?.status === "complete" ? "complete" : "limited"}/>
@@ -242,11 +242,11 @@ export default function BattleRoom({ ownSite, competitorSite }: { ownSite: strin
           <span className="battle-section-overline">EVIDENCE FIRST</span>
           <h2 id="battle-insights-title">Quick insights</h2>
           <p aria-live="polite">{readSummary}</p>
-          {inspection && <div className="battle-insight-bar"><span className="battle-insight-bullet"/><span>{pageA?.domain}: {pageA?.signals.filter(s => s.observed).length} signals found · {pageB?.domain}: {pageB?.signals.filter(s => s.observed).length} signals found</span></div>}
+          {inspection && <div className="battle-insight-bar"><span className="battle-insight-bullet"/><span>{pageA?.domain}: {pageA?.pages?.filter(p => p.status === "inspected").length ?? 0} pages / {pageA?.signals.filter(s => s.observed).length} signals · {pageB?.domain}: {pageB?.pages?.filter(p => p.status === "inspected").length ?? 0} pages / {pageB?.signals.filter(s => s.observed).length} signals</span></div>}
           {observed.length > 0 && <div className="battle-observed" aria-label="Observed homepage signals">
             {observed.map((item,index) => <div key={item.domain+item.label+index}><span>{item.domain} · {item.label}</span><strong>{item.excerpt}</strong></div>)}
           </div>}
-          {inspection && <p className="battle-scope-note">Live screenshots and detected text are separate checks. Missing evidence is not proof of a weaker business.</p>}
+          {inspection && <p className="battle-scope-note">Screenshots show homepages only; text inspection can include linked internal pages. Missing evidence is not proof of a weaker business.</p>}
           {comparisonReady && <Link className="battle-result-button" href={reportURL}>View Battle Report <ArrowRight size={18}/></Link>}
           {(inspectionStatus === "failed" || (inspectionDone && inspection?.status !== "complete")) && <button className="battle-retry-inspect" type="button" onClick={() => setAttempt(a => a + 1)}>Retry page reading <RefreshCw size={16}/></button>}
           <Link href={editURL} className="battle-new"><ArrowLeft size={17}/> Edit website addresses</Link>
