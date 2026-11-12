@@ -35,25 +35,31 @@ function quote(text: string): string {
 export function buildReportModel(report: BattleInspection): ReportModel {
   const factors: Factor[] = FACTORS.map(f => ({ ...f, own: state(report.own, f.key), competitor: state(report.competitor, f.key) }));
   const complete = report.status === "complete";
+  const pagesA = report.own.pages?.filter(p => p.status === "inspected").length || (report.own.status === "inspected" ? 1 : 0);
+  const pagesB = report.competitor.pages?.filter(p => p.status === "inspected").length || (report.competitor.status === "inspected" ? 1 : 0);
+  const comparableCoverage = Math.abs(pagesA - pagesB) <= 1;
   const ownCount = factors.filter(f => f.own === "found").length;
   const otherCount = factors.filter(f => f.competitor === "found").length;
   let verdict = "Comparison inconclusive";
-  let explanation = "Not enough comparable public homepage information was available. Try scanning again or inspect both websites directly.";
+  let explanation = "Not enough comparable public-page evidence was available. Try scanning again or inspect both websites directly.";
   let tone: ReportModel["tone"] = "limited";
   if (complete) {
-    if (Math.abs(ownCount - otherCount) >= 2) {
+    if (!comparableCoverage) {
+      verdict = "Uneven page coverage";
+      explanation = "Different numbers of public pages were readable for each site, so a fair overall verdict cannot be drawn. Check the page list and sources below.";
+    } else if (Math.abs(ownCount - otherCount) >= 2) {
       const leader = ownCount > otherCount ? report.own : report.competitor;
       verdict = leader.domain + " shows more visible signals";
-      explanation = "More of the four checkable on-page signals were detected in its captured homepage text. This is a visibility comparison, not a judgment of which business converts better.";
+      explanation = "More of the four checkable on-page signals were detected in its captured public-page text. This is a visibility comparison, not a judgment of which business converts better.";
       tone = "lead";
     } else {
       verdict = "A close match on visible signals";
-      explanation = "The available homepage text reveals a similar number of signals across both sites. A reliable overall winner cannot be determined from these checks alone.";
+      explanation = "The available homepage text reveals a similar number of signals across the inspected pages. A reliable overall winner cannot be determined from these checks alone.";
       tone = "close";
     }
   } else if (report.status === "partial") {
     verdict = "Limited comparison";
-    explanation = "Only one homepage could be inspected. A fair website-to-website verdict requires evidence from both pages.";
+    explanation = "Only one website could be inspected. A fair website-to-website verdict requires evidence from both pages.";
   }
 
   const findings: Finding[] = [];
@@ -65,19 +71,19 @@ export function buildReportModel(report: BattleInspection): ReportModel {
       findings.push({
         title: "Detected on " + report.own.domain,
         body: factor.label + ": " + quote(a.excerpt) + ". A matching signal was not identified in the competitor's captured page text.",
-        source: report.own.url, tag: factor.label,
+        source: a.sourceUrl || report.own.url, tag: factor.label,
       });
     } else if (b?.observed && !a?.observed && complete) {
       findings.push({
         title: "Detected on " + report.competitor.domain,
         body: factor.label + ": " + quote(b.excerpt) + ". A matching signal was not identified in your site's captured page text.",
-        source: report.competitor.url, tag: factor.label,
+        source: b.sourceUrl || report.competitor.url, tag: factor.label,
       });
     } else if (a?.observed && b?.observed && complete) {
       findings.push({
         title: "Both websites show " + NAMES[key],
         body: "Your site: " + quote(a.excerpt) + " · Competitor: " + quote(b.excerpt),
-        source: report.own.url, tag: factor.label,
+        source: a.sourceUrl || report.own.url, tag: factor.label,
       });
     } else if (!complete && a?.observed && report.own.status === "inspected") {
       findings.push({ title: "Found on your homepage", body: factor.label + ": " + quote(a.excerpt), source: report.own.url, tag: factor.label });
@@ -90,7 +96,7 @@ export function buildReportModel(report: BattleInspection): ReportModel {
   const recommendations: Record<SignalKey, { title: string; missing: string; present: string }> = {
     headline: {
       title: "Sharpen your first-screen message",
-      missing: "No main heading was identified in the captured text. Check that your homepage clearly says what you offer and who it helps.",
+      missing: "No main heading was identified on the captured homepage. Make sure your main offer is clear to visitors.",
       present: "Review the detected headline against your ideal buyer's needs and make the promise specific.",
     },
     action: {
@@ -100,12 +106,12 @@ export function buildReportModel(report: BattleInspection): ReportModel {
     },
     pricing: {
       title: "Clarify pricing or the next pricing step",
-      missing: "No explicit pricing signal was found in the captured homepage text. Link clearly to pricing or explain how buyers obtain a quote.",
+      missing: "No explicit pricing signal was found on the inspected public pages. Link clearly to pricing or explain how buyers obtain a quote.",
       present: "Check that visitors can tell what is included and where to find price details.",
     },
     trust: {
       title: "Surface credible reassurance",
-      missing: "No trust or support signal was found in the captured text. Check that verifiable proof and help information are easy to find.",
+      missing: "No trust or support signal was found on the inspected public pages. Check that verifiable proof and help information are easy to find.",
       present: "Make sure any proof near the main CTA is specific, current and verifiable.",
     },
   };
