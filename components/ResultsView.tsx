@@ -50,14 +50,14 @@ const BUYER_STAGES: { key: SignalKey; title: string; question: string }[] = [
 function signalEvidence(site: InspectionSite, key: SignalKey): string {
   if (site.status !== "inspected") return "Page text unavailable";
   const signal = site.signals.find(s => s.key === key);
-  return signal?.observed ? signal.excerpt : "Not detected in captured homepage text";
+  return signal?.observed ? signal.excerpt : "Not detected in inspected public-page text";
 }
 
 export default function ResultsView({ ownSite, competitorSite }: { ownSite: string; competitorSite: string }) {
   const params = new URLSearchParams({ own: ownSite, competitor: competitorSite });
   const battleURL = "/battle?" + params.toString();
   const editURL = "/?" + params.toString() + "#compare";
-  const storageKey = "vsyde:report:" + params.toString();
+  const storageKey = "vsyde:report:v2:" + params.toString();
   const [report, setReport] = useState<BattleInspection | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
   const [error, setError] = useState("");
@@ -136,7 +136,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
       {status === "loading" && <div className="br-loading" role="status">
         <LoaderCircle size={27} className="battle-spin"/>
         <strong>Checking both websites</strong>
-        <span>Collecting public homepage evidence…</span>
+        <span>Reading linked public pages on both sites…</span>
       </div>}
       {status === "failed" && <div className="br-loading" role="alert">
         <CircleAlert size={28}/>
@@ -151,7 +151,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
             <h2 id="br-verdict-title">{model.verdict}</h2>
             <p>{model.explanation}</p>
             <div className="br-verdict-meta">
-              <span><CheckCircle2 size={15}/> {report.status === "complete" ? "Both homepages inspected" : report.status === "partial" ? "Partial evidence" : "Insufficient evidence"}</span>
+              <span><CheckCircle2 size={15}/> {report.status === "complete" ? "Both websites inspected" : report.status === "partial" ? "Partial evidence" : "Insufficient evidence"}</span>
               <span>Checked {dateText}</span>
             </div>
           </div>
@@ -178,10 +178,22 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
           </div>
         </section>
 
+        <div className="br-inspected-grid" aria-label="Inspected page coverage">
+          {[{site:report.own,label:"YOUR WEBSITE"},{site:report.competitor,label:"COMPETITOR"}].map(({site,label}) => <div className="br-inspected-card" key={label}>
+            <strong>{label} · {site.pages?.filter(page => page.status === "inspected").length ?? (site.status === "inspected" ? 1 : 0)} page(s) inspected</strong>
+            {(site.pages || [{url:site.url,title:site.title,role:"homepage" as const,status:site.status}]).map(page => <div className="br-inspected-item" key={page.url}>
+              <a href={page.url} target="_blank" rel="noopener noreferrer">{page.role === "homepage" ? "Homepage" : page.role === "pricing" ? "Pricing" : page.role === "product" ? "Product / features" : "Trust / about"} <ExternalLink size={12} style={{display:"inline"}}/></a>
+              <span className={page.status === "inspected" ? "is-ok" : ""}>{page.status === "inspected" ? "Read" : "Not read"}</span>
+            </div>)}
+            {site.note && <p className="br-inspected-note">{site.note}</p>}
+          </div>)}
+        </div>
+        <p className="br-inspected-note">Only publicly linked pages are checked. Missing pages are not assumed to exist, and screenshots show the homepage only.</p>
+
         <section className="br-section" aria-labelledby="br-scorecard">
           <div className="br-section-heading">
             <div><span className="br-section-index">03 / SIGNAL SCORECARD</span><h2 id="br-scorecard">Five-factor comparison</h2></div>
-            <span className="br-section-context">Visible homepage signals</span>
+            <span className="br-section-context">Signals found on inspected pages</span>
           </div>
           <div className="br-scorecard">
             <div className="br-scorecard-head">
@@ -195,7 +207,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
               <div className="br-factor-site"><span className="br-mobile-label">COMPETITOR</span><DetectionTag status={factor.competitor}/></div>
             </div>)}
           </div>
-          <p className="br-caption">Detected means a matching signal appeared in the captured text—not a quality score. Buying friction requires deeper interaction testing.</p>
+          <p className="br-caption">Detected means a matching signal appeared on a checked page—not a quality score. Buying friction requires deeper interaction testing.</p>
         </section>
 
         <section className="br-section" aria-labelledby="br-findings">
@@ -248,7 +260,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
           </div> : <div className="br-empty"><Target size={22}/><strong>Inspect your site to get improvements</strong><p>We couldn't read enough of your homepage to suggest evidence-based next steps.</p></div>}
         </section>
         <div className="br-next-preview">
-          <div><span><LockKeyhole size={15}/> DEEPER ANALYSIS</span><h2>Go beyond the homepage</h2><p>Interaction testing, detailed visual annotations and a full buyer-experience audit require additional analysis. They are not included in this initial preview.</p></div>
+          <div><span><LockKeyhole size={15}/> DEEPER ANALYSIS</span><h2>Go beyond public page text</h2><p>Interaction testing, detailed visual annotations and a full buyer-experience audit require additional analysis beyond this text-based page scan.</p></div>
           <Link href={editURL}>Compare another site <ArrowRight size={17}/></Link>
         </div>
         <div className="br-actions">
@@ -256,7 +268,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
           <Link href={battleURL} className="br-secondary">Review screenshots <ArrowUpRight size={17}/></Link>
           <Link href={editURL} className="br-secondary">New comparison <ArrowRight size={17}/></Link>
         </div>
-        <p className="br-footnote"><ShieldCheck size={17}/> Based on publicly captured homepage text. This is not a measure of actual customer behavior or conversion performance.</p>
+        <p className="br-footnote"><ShieldCheck size={17}/> Based on inspected public-page text. This is not a measure of actual customer behavior or conversion performance.</p>
       </>}
     </main>
     <footer className="battle-footer battle-width"><span>© {new Date().getFullYear()} vsyde</span><a href="mailto:hello.skyorigin@gmail.com">hello.skyorigin@gmail.com</a></footer>
