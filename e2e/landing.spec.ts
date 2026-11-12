@@ -38,7 +38,7 @@ test("sample report tabs and FAQ are keyboard accessible", async ({ page }) => {
   await tab.focus();
   await page.keyboard.press("ArrowRight");
   await expect(page.getByRole("tab", { name: "Evidence" })).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tabpanel")).toContainText("See the reason behind the score.");
+  await expect(page.getByRole("tabpanel")).toContainText("See where each observation came from.");
   await page.getByRole("tab", { name: "Fix plan" }).click();
   await expect(page.getByRole("tabpanel")).toContainText("Less guessing. More shipping.");
   const faq = page.getByRole("button", { name: "Is vsyde free to try?" });
@@ -46,6 +46,26 @@ test("sample report tabs and FAQ are keyboard accessible", async ({ page }) => {
   await expect(faq).toHaveAttribute("aria-expanded", "true");
   await faq.click();
   await expect(faq).toHaveAttribute("aria-expanded", "false");
+});
+
+test("find live competitor suggestions, choose a site and start a battle", async ({ page }) => {
+  await page.route("**/api/competitors?**", async route => route.fulfill({
+    status:200,contentType:"application/json",body:JSON.stringify({
+      title:"Example customer tools",source:"public search",
+      note:"Suggestions are not verified business competitors.",
+      suggestions:[{name:"Related Tool",domain:"related-tool.io",url:"https://related-tool.io/",description:"An alternative tool from public search"}],
+    }),
+  }));
+  await page.goto("/");
+  await page.getByRole("button",{name:/Find competitors for me/}).click();
+  await expect(page.locator("#own-url")).toHaveAttribute("aria-invalid","true");
+  await page.locator("#own-url").fill("example.com");
+  await page.getByRole("button",{name:/Find competitors for me/}).click();
+  await expect(page.getByRole("button",{name:/Related Tool/})).toBeVisible();
+  await page.getByRole("button",{name:/Related Tool/}).click();
+  await expect(page.locator("#competitor-url")).toHaveValue("https://related-tool.io/");
+  await page.locator(".form-submit").click();
+  await expect(page).toHaveURL(/\/battle\?own=/);
 });
 
 test("mobile menu opens and section links navigate", async ({ page }) => {
@@ -226,12 +246,15 @@ test("browser screenshots can zoom, mobile tabs switch, and free results open", 
 for (const width of [320, 390, 768, 1440]) {
   test(`free results responsive at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 820 });
+    await page.route("**/api/battle/preview?**", async route => route.fulfill({status:502,contentType:"application/json",body:JSON.stringify({error:"Capture unavailable"})}));
     await page.route("**/api/battle/inspect?**", async route => route.fulfill({
       status:200, contentType:"application/json",body:JSON.stringify(reportFixture()),
     }));
     await page.goto("/results?own=https%3A%2F%2Fexample.com&competitor=https%3A%2F%2Fexample.org");
     await expect(page.locator(".br-factor")).toHaveCount(5);
     await expect(page.locator(".br-fix")).toHaveCount(3);
+    await expect(page.locator(".br-snapshot")).toHaveCount(2);
+    await expect(page.locator(".br-journey-stage")).toHaveCount(4);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
     await page.getByRole("button", { name: "Switch to dark mode" }).click();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
