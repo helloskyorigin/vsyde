@@ -145,3 +145,65 @@ html[data-theme="dark"] .battle-retry-inspect { background:#223c60; border-color
 .preview-card-description { font-size:12px; line-height:1.65; color:#6d7f99; margin:7px 0 0; }
 html[data-theme="dark"] .report-score .preview-status-text { color:#eff5ff; }
 html[data-theme="dark"] .preview-card-description { color:#b3c3dd; }
+
+
+/* The optional finder sits beside the main comparison form, never between its inputs. */
+.hero-compare-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,550px) minmax(0,1fr);
+  column-gap:22px;
+  align-items:start;
+  width:100%;
+}
+.hero-compare-layout > .comparison-form { grid-column:2; margin-top:34px; justify-self:center; }
+.competitor-side {
+  grid-column:3; min-width:0; margin-top:34px; padding:17px 14px;
+  text-align:left; background:#ffffffed; border:1px solid #dce6f5;
+  border-radius:20px; box-shadow:0 15px 35px #294e8d10;
+}
+.competitor-side-head { display:flex; gap:9px; align-items:center; color:#1f3758; font-size:14px; }
+.competitor-side-head svg { color:#206eee; flex:none; }
+.competitor-side-hint { font-size:12px; line-height:1.55; color:#6b7990; margin:8px 0 13px; }
+.competitor-side .discover-entry { display:block; margin:0; }
+.competitor-side .discover-entry > span { display:none; }
+.competitor-side .discover-entry button { width:100%; justify-content:center; font-size:12px; min-height:41px; }
+.competitor-side .discover-panel { padding:10px; margin:12px 0 0; border-radius:13px; max-height:470px; overflow-y:auto; }
+.competitor-side .discover-results { grid-template-columns:minmax(0,1fr); }
+.competitor-side .discover-option { min-height:0; padding:11px 9px; }
+.competitor-side .discover-option-top { flex-wrap:wrap; }
+.competitor-side .discover-option-top strong { font-size:12px; }
+.competitor-side .discover-disclaimer { font-size:10px; }
+@media(max-width:1050px) {
+  .hero-compare-layout { grid-template-columns:minmax(0,1fr); gap:0; justify-items:center; }
+  .hero-compare-layout > .comparison-form { grid-column:1; width:min(100%,550px); }
+  .competitor-side { grid-column:1; margin-top:18px; width:min(100%,550px); padding:14px 16px; }
+  .competitor-side-head { font-size:13px; }
+  .competitor-side-hint { margin:7px 0 10px; }
+  .competitor-side .discover-results { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:480px) {
+  .competitor-side .discover-results { grid-template-columns:1fr; }
+}
+html[data-theme="dark"] .competitor-side { background:#141e30; border-color:#2c3d58; }
+html[data-theme="dark"] .competitor-side-head { color:#edf3ff; }
+html[data-theme="dark"] .competitor-side-hint { color:#adbed9; }
+html[data-theme="dark"] .competitor-side .discover-panel { background:#1b2940; border-color:#344764; }
+html[data-theme="dark"] .competitor-side .discover-option { background:#1e304a; border-color:#3b5173; }
+html[data-theme="dark"] .competitor-side .discover-option-top strong { color:#e7efff; }
+html[data-theme="dark"] .competitor-side .discover-option-description { color:#b6c7e0; }
+
+/* Per-page evidence coverage for both sites. */
+.br-inspected-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:17px; }
+.br-inspected-card { border:1px solid #e1eafa; border-radius:17px; background:#fff; padding:16px; min-width:0; }
+.br-inspected-card > strong { display:block; font-size:13px; color:#233b63; margin-bottom:10px; overflow-wrap:anywhere; }
+.br-inspected-item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid #edf2f9; font-size:12px; }
+.br-inspected-item > a { min-width:0; overflow-wrap:anywhere; color:#2262c1; font-weight:680; text-decoration:underline; text-underline-offset:3px; }
+.br-inspected-item > span { flex:none; font-size:11px; color:#687a91; }
+.br-inspected-item > span.is-ok { color:#177350; }
+.br-inspected-note { margin:12px 2px 0; color:#6c7c92; font-size:12px; line-height:1.55; }
+@media(max-width:650px){ .br-inspected-grid { grid-template-columns:1fr; } }
+html[data-theme="dark"] .br-inspected-card { background:#19263b; border-color:#304360; }
+html[data-theme="dark"] .br-inspected-card > strong { color:#ecf2ff; }
+html[data-theme="dark"] .br-inspected-item { border-color:#32445e; }
+html[data-theme="dark"] .br-inspected-item > span { color:#afbfda; }
+html[data-theme="dark"] .br-inspected-item > span.is-ok { color:#8be8bc; }
