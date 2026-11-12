@@ -222,6 +222,7 @@ export default function ResultsView({ ownSite, competitorSite }: { ownSite: stri
                 <span className="br-finding-tag">{item.tag}</span>
                 <h3>{item.title}</h3><p>{item.body}</p>
                 <a href={item.source} target="_blank" rel="noopener noreferrer">View source <ExternalLink size={14}/></a>
+                {item.otherSource && <a href={item.otherSource} target="_blank" rel="noopener noreferrer" style={{marginLeft:14}}>Competitor source <ExternalLink size={14}/></a>}
               </div>
             </article>)}
           </div> : <div className="br-empty"><CircleAlert size={22}/><strong>Not enough evidence yet</strong><p>Neither page returned reliable matching information. Try scanning again or review the sites directly.</p></div>}
