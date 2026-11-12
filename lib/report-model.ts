@@ -73,13 +73,13 @@ export function buildReportModel(report: BattleInspection): ReportModel {
         body: factor.label + ": " + quote(a.excerpt) + ". A matching signal was not identified in the competitor's captured page text.",
         source: a.sourceUrl || report.own.url, tag: factor.label,
       });
-    } else if (b?.observed && !a?.observed && complete) {
+    } else if (b?.observed && !a?.observed && complete && comparableCoverage) {
       findings.push({
         title: "Detected on " + report.competitor.domain,
         body: factor.label + ": " + quote(b.excerpt) + ". A matching signal was not identified in your site's captured page text.",
         source: b.sourceUrl || report.competitor.url, tag: factor.label,
       });
-    } else if (a?.observed && b?.observed && complete) {
+    } else if (a?.observed && b?.observed && complete && comparableCoverage) {
       findings.push({
         title: "Both websites show " + NAMES[key],
         body: "Your site: " + quote(a.excerpt) + " · Competitor: " + quote(b.excerpt),
